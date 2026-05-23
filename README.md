@@ -22,3 +22,7 @@ Use cases:
     Protests/crowds: decentralized comms that can't be shut down
 
 Built for Systems Under Pressure — because the moment you need communication most is the moment centralized networks fail.
+
+## License
+
+Licensed under the MIT License. See `LICENSE`.
