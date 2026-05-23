@@ -5,9 +5,9 @@ from bless.backends.characteristic import GATTAttributePermissions
 
 MESH_SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
 MESH_CHAR_UUID = "12345678-1234-5678-1234-56789abcdef1"
-
+    
 async def advertise():
-    server = BlessServer(name="alice-macbook")
+    server = BlessServer(name="jake-macbook")
     await server.add_new_service(MESH_SERVICE_UUID)
     await server.add_new_characteristic(
         MESH_SERVICE_UUID,

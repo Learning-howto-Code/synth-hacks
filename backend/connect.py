@@ -1,48 +1,37 @@
-## Jake’s mac: A0:78:17:60:33:FC
-## Shree’s mac: 84:2F:57:22:74:35
 import asyncio
-import argparse
-from bleak import BleakClient, BleakError
+from bleak import BleakClient
+from bless import BlessServer
+from bless.backends.characteristic import GATTCharacteristicProperties
+from bless.backends.characteristic import GATTAttributePermissions
 
-# On macOS, you need to use the UUID-based address, not the hardware MAC address.
-# You can find this by running a scanner script (like test.py) first.
-# I'll leave this here as an example of what a macOS address looks like.
-EXAMPLE_MACOS_ADDRESS = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+# ID for connecting, shared accross devices
+MESH_CHAR_UUID = "12345678-1234-5678-1234-56789abcdef1"
+#addres from shree's mac
+SHREE_ADDRESS = "6E71AD25-22E7-9C7F-4C80-9A43D1BF88E9"
 
-async def main(address: str):
-    """
-    Connects to a BLE device at the given address and lists its services.
-    """
-    print(f"Attempting to connect to {address}...")
+# Reads from other mac
+async def connect():
+    async with BleakClient(SHREE_ADDRESS) as client:
+        print(f"Connected: {client.is_connected}")
 
-    # The `async with` statement ensures that the client is properly
-    # disconnected when the block is exited, even if an error occurs.
-    try:
-        async with BleakClient(address) as client:
-            if client.is_connected:
-                print(f"Connected to {address}")
-                print("Services:")
-                # Loop through all services in the client
-                for service in client.services:
-                    print(f"  [Service] {service.uuid}: {service.description}")
-                    # And loop through all characteristics in the service
-                    for char in service.characteristics:
-                        print(f"    [Characteristic] {char.uuid}: {char.description}, Properties: {char.properties}")
-            else:
-                # This path is less common with `async with` but good to have
-                print(f"Failed to connect to {address}")
-
-    except BleakError as e:
-        print(f"Error: Could not connect to device. {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Connect to a BLE device and list its services.")
-    parser.add_argument(
-        "address",
-        help=f"The address of the BLE device to connect to (on macOS, this is a UUID).",
+        # Read the characteristic value
+        data = await client.read_gatt_char(MESH_CHAR_UUID)
+        print(f"Got: {data.decode()}")
+    
+# Writes to other mac
+async def advertise():
+    server = BlessServer(name="jake's-macbook")
+    await server.add_new_service(MESH_CHAR_UUID)
+    await server.add_new_characteristic(
+        MESH_CHAR_UUID,
+        MESH_CHAR_UUID,
+        properties=GATTCharacteristicProperties.read,
+        permissions=GATTAttributePermissions.readable,
+        value=bytearray(b"test123"),
     )
-    args = parser.parse_args()
+    await server.start()
+    print("Advertising...")
+    await asyncio.Event().wait()
 
-    asyncio.run(main(args.address))
+asyncio.run(connect())
+asyncio.run(advertise())

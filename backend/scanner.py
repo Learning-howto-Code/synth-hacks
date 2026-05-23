@@ -1,14 +1,18 @@
 import asyncio
 from bleak import BleakScanner
 
-MESH_SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
+# The MESH_SERVICE_UUID is not needed for a general scan
+# MESH_SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
 
 async def scan():
+    print("Scanning for 'jake-macbook' for 5 seconds...")
+    # We remove the `service_uuids` filter to find all advertising devices.
     devices = await BleakScanner.discover(
-        5.0,
-        service_uuids=[MESH_SERVICE_UUID]
+        timeout=5.0,
     )
     for d in devices:
-        print(f"{d.name} — {d.address}")
+        # The advertising script sets the name, so we can look for it.
+        if d.name == "jake-macbook":
+            print(f"Found: {d.name} — {d.address}")
 
 asyncio.run(scan())
