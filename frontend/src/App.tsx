@@ -153,15 +153,15 @@ python server.py`
 
       <section className="hero">
         <div className="hero-content">
-          <span className="badge">⚡ Bluetooth mesh · Multi-hop · Encrypted</span>
+          <span className="badge">⚡ Peer-to-peer · Multi-hop · Encrypted</span>
           <h1>
-            Chat with no Wi-Fi.<br />
+            Chat without internet.<br />
             <span className="grad">Mesh through your friends.</span>
           </h1>
           <p className="lede">
-            Mesh hops messages device-to-device over Bluetooth. No internet, no router,
-            no cell tower. Each device relays for the next — reach friends out of range
-            through people in between.
+            Mesh links devices directly over Wi-Fi and Bluetooth — no router, no cell
+            tower, no server. Each device relays for the next, so you can reach friends
+            out of range through people in between.
           </p>
           <div className="hero-actions">
             <button className="primary big" onClick={() => scrollTo(installRef)}>
@@ -266,8 +266,8 @@ python server.py`
         <div className="grid">
           <div className="card">
             <div className="icon">📡</div>
-            <h3>No Wi-Fi required</h3>
-            <p>Bluetooth + peer-to-peer Wi-Fi link devices directly. Works in airplane mode, dead zones, disaster scenarios.</p>
+            <h3>No internet required</h3>
+            <p>Wi-Fi adapter + Bluetooth link devices directly via Apple MultipeerConnectivity. Works on a plane, in the woods, after the router dies — anywhere your radio has power.</p>
           </div>
           <div className="card">
             <div className="icon">🕸</div>
@@ -319,8 +319,8 @@ python server.py`
           <li>
             <span className="step-num">4</span>
             <div>
-              <h3>Want pure Bluetooth?</h3>
-              <p>Turn Wi-Fi <em>off</em>. Mesh switches to Bluetooth-only — works in airplane mode (Bluetooth on), at festivals, on planes, anywhere.</p>
+              <h3>One requirement: keep your Wi-Fi <em>adapter</em> on</h3>
+              <p>You don't need to be on any network — disconnect from every Wi-Fi if you want. Just keep the adapter powered. macOS uses it to negotiate peer-to-peer Wi-Fi between devices even with no router around.</p>
             </div>
           </li>
         </ol>
