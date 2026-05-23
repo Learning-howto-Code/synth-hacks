@@ -17,7 +17,14 @@ from pathlib import Path
 
 import webview
 
-ROOT = Path(__file__).parent
+# When bundled by PyInstaller, data files live in sys._MEIPASS
+if hasattr(sys, "_MEIPASS"):
+    ROOT = Path(sys._MEIPASS)
+    BUNDLED = True
+else:
+    ROOT = Path(__file__).parent
+    BUNDLED = False
+
 BACKEND = ROOT / "backend"
 DIST = ROOT / "frontend" / "dist"
 HOST = "127.0.0.1"
@@ -28,6 +35,10 @@ URL = f"http://{HOST}:{PORT}/"
 def _ensure_frontend_built() -> bool:
     if (DIST / "index.html").exists():
         return True
+    if BUNDLED:
+        # Bundled binary should already have dist embedded; missing means a build problem.
+        print("[desktop] FATAL: frontend dist missing from bundle")
+        return False
     print("[desktop] frontend not built; building now (npm run build)...")
     import subprocess
     fe = ROOT / "frontend"

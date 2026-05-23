@@ -522,7 +522,10 @@ async def ws_endpoint(ws: WebSocket):
         app_state.sockets.discard(ws)
 
 
-DIST_DIR = REPO_DIR / "frontend" / "dist"
+if hasattr(sys, "_MEIPASS"):
+    DIST_DIR = Path(sys._MEIPASS) / "frontend" / "dist"
+else:
+    DIST_DIR = REPO_DIR / "frontend" / "dist"
 if DIST_DIR.exists():
     app.mount("/assets", StaticFiles(directory=DIST_DIR / "assets"), name="assets")
 

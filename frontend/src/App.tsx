@@ -201,8 +201,36 @@ python server.py`
         <div className="install-header">
           <span className="kicker">Get started</span>
           <h2>Install in 30 seconds.</h2>
-          <p className="lede">One command. macOS, Linux, or Windows.</p>
+          <p className="lede">Download the native app, or run a one-liner.</p>
         </div>
+
+        <div className="dl-grid">
+          <a
+            className="dl-btn mac"
+            href="https://github.com/Learning-howto-Code/synth-hacks/releases/latest/download/Mesh-macos.zip"
+          >
+            <span className="dl-os"></span>
+            <span className="dl-label">
+              <span className="dl-title">Download for macOS</span>
+              <span className="dl-sub">Mesh.app · Apple silicon &amp; Intel</span>
+            </span>
+          </a>
+          <a
+            className="dl-btn win"
+            href="https://github.com/Learning-howto-Code/synth-hacks/releases/latest/download/Mesh-windows.zip"
+          >
+            <span className="dl-os">⊞</span>
+            <span className="dl-label">
+              <span className="dl-title">Download for Windows</span>
+              <span className="dl-sub">Mesh.exe · 64-bit</span>
+            </span>
+          </a>
+        </div>
+        <p className="hint" style={{ marginTop: 16 }}>
+          Unsigned binaries. macOS: right-click → Open. Windows: SmartScreen → More info → Run anyway.
+        </p>
+
+        <div className="install-divider"><span>or use the script installer</span></div>
 
         <OneLinerCard />
 
