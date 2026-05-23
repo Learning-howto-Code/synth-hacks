@@ -365,6 +365,24 @@ def _git(*args: str) -> str:
         return ""
 
 
+def _bluetooth_on() -> Optional[bool]:
+    """Return True if classic Bluetooth radio is powered on. macOS only.
+
+    MPC falls back to Bluetooth PAN when Wi-Fi is unavailable, so a BT-on
+    check is the cheapest signal that an "offline" mesh can still form.
+    """
+    if not IS_MACOS:
+        return None
+    try:
+        out = subprocess.check_output(
+            ["defaults", "read", "/Library/Preferences/com.apple.Bluetooth", "ControllerPowerState"],
+            stderr=subprocess.DEVNULL, timeout=2,
+        ).decode().strip()
+        return out == "1"
+    except Exception:
+        return None
+
+
 def get_version_info() -> dict:
     local = _git("rev-parse", "HEAD")[:8]
     try:
@@ -440,13 +458,24 @@ async def lifespan(_: FastAPI):
         # NOTE: we do NOT spawn a background NSRunLoop thread anymore.
         # MPC delegate callbacks dispatch on the main thread's runloop,
         # which must be pumped by the launcher (see __main__ block).
+        bt = _bluetooth_on()
         print()
         print("=" * 64)
-        print("  [mesh] If peers don't appear within 10 seconds:")
-        print("  1) System Settings → Privacy & Security → Local Network")
-        print("     -> Enable Terminal (or whatever app is running Python)")
-        print("  2) Both Macs must be on the SAME Wi-Fi network")
-        print("  3) Restart the server after granting permission")
+        print("  [mesh] MPC transport (Apple picks automatically):")
+        print("    - Bluetooth PAN  (works with Wi-Fi OFF — true offline mesh)")
+        print("    - AWDL peer-to-peer Wi-Fi (no shared network required)")
+        print("    - Infrastructure Wi-Fi (if both on the same LAN)")
+        print()
+        print("  Required permissions (granted once, in System Settings):")
+        print("    - Privacy & Security → Local Network  → enable this app")
+        print("    - Privacy & Security → Bluetooth      → enable this app")
+        print()
+        if bt is True:
+            print("  Bluetooth radio: ON  ✓ (mesh will work without Wi-Fi)")
+        elif bt is False:
+            print("  Bluetooth radio: OFF ✗  turn it on for offline (no-Wi-Fi) mesh")
+        else:
+            print("  Bluetooth radio: unknown (could not read system pref)")
         print("=" * 64)
         print()
     else:
@@ -525,6 +554,7 @@ async def get_diag():
         "platform": sys.platform,
         "mpc_available": MPC_AVAILABLE,
         "ble_available": BLE_AVAILABLE,
+        "bluetooth_radio_on": _bluetooth_on(),
         "mpc_bridge_started": bridge_ok,
         "mpc_own_name": own_name,
         "mpc_service_type": SERVICE_TYPE,
@@ -535,9 +565,10 @@ async def get_diag():
         "mesh_seen_msgs": len(_seen_set),
         "mesh_max_ttl": MAX_TTL,
         "hint": (
-            "If mpc_connected_peer_count is 0 and your friend's server is also running, "
-            "check System Settings → Privacy & Security → Local Network → make sure "
-            "Terminal (or Python) is enabled. MPC silently fails when denied."
+            "MPC works without Wi-Fi by falling back to Bluetooth PAN. "
+            "If mpc_connected_peer_count is 0: (1) confirm bluetooth_radio_on is true, "
+            "(2) check System Settings → Privacy & Security → Local Network AND Bluetooth — "
+            "this app must be enabled in both. MPC silently fails when permissions are denied."
         ),
     }
 
