@@ -10,7 +10,7 @@ async def run_server():
     """
     Sets up and runs the BLE server, advertising a single service and characteristic.
     """
-    server_name = "Jakes-Macbook"
+    server_name = "Yuvas-MacBook-Pro"
     # The `try...finally` block ensures the server is stopped gracefully.
     server = BlessServer(name=server_name)
     try:
