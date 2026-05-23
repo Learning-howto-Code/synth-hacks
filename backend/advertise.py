@@ -5,7 +5,7 @@ from bless.backends.characteristic import GATTAttributePermissions
 
 MESH_SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
 MESH_CHAR_UUID = "12345678-1234-5678-1234-56789abcdef1"
-    
+
 async def run_server():
     """
     Sets up and runs the BLE server, advertising a single service and characteristic.
