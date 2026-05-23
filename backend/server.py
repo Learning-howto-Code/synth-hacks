@@ -510,6 +510,37 @@ async def get_version():
     return get_version_info()
 
 
+def _awdl_state() -> dict:
+    """Check AWDL (Apple Wireless Direct Link) — needed for peer-to-peer Wi-Fi."""
+    if sys.platform != "darwin":
+        return {"available": False, "reason": "non-mac"}
+    try:
+        out = subprocess.check_output(["ifconfig", "awdl0"], stderr=subprocess.DEVNULL, timeout=2).decode()
+    except Exception:
+        return {"available": False, "reason": "interface missing"}
+    flags = "UP" in out and "RUNNING" in out
+    return {
+        "available": True,
+        "up": "UP" in out,
+        "running": "RUNNING" in out,
+        "active": flags,
+    }
+
+
+def _wifi_state() -> dict:
+    if sys.platform != "darwin":
+        return {"adapter": "unknown"}
+    try:
+        # ifconfig en0 status. "status: active" means radio on.
+        out = subprocess.check_output(["ifconfig", "en0"], stderr=subprocess.DEVNULL, timeout=2).decode()
+        return {
+            "adapter_on": "status: active" in out,
+            "has_ip": "inet " in out,
+        }
+    except Exception:
+        return {"adapter": "unknown"}
+
+
 @app.get("/diag")
 async def get_diag():
     bridge_ok = _bridge is not None
@@ -534,11 +565,13 @@ async def get_diag():
         "ws_client_count": len(app_state.sockets),
         "mesh_seen_msgs": len(_seen_set),
         "mesh_max_ttl": MAX_TTL,
-        "hint": (
-            "If mpc_connected_peer_count is 0 and your friend's server is also running, "
-            "check System Settings → Privacy & Security → Local Network → make sure "
-            "Terminal (or Python) is enabled. MPC silently fails when denied."
-        ),
+        "awdl": _awdl_state(),
+        "wifi": _wifi_state(),
+        "hints": [
+            "Most common failure: Local Network permission denied. System Settings → Privacy & Security → Local Network → enable Terminal/Python.",
+            "For router-burned/offline scenarios: keep Wi-Fi adapter ON (radio active), no network needed. AWDL forms direct peer-to-peer Wi-Fi.",
+            "If awdl.active=false, peer-to-peer Wi-Fi is off — toggle Wi-Fi off then back on in Control Center.",
+        ],
     }
 
 

@@ -8,7 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
+# dist is intentionally NOT ignored -- we commit the built frontend so
+# users without Node.js can serve the UI from the Python backend directly.
 dist-ssr
 *.local
 
