@@ -105,6 +105,7 @@ def main() -> None:
     if not _wait_for_server():
         print("[desktop] server did not start in time")
         return
+    print(f"[desktop] Mesh ready. UI at {URL} (works offline)")
 
     window = webview.create_window(
         title="Mesh",

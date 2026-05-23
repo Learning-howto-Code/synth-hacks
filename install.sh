@@ -59,5 +59,5 @@ echo "  $TARGET_DIR/venv/bin/python $TARGET_DIR/desktop.py"
 echo
 bold "Or run server only (web UI):"
 echo "  $TARGET_DIR/venv/bin/python $TARGET_DIR/backend/server.py"
-echo "  then open: https://frontend-gold-five-84.vercel.app"
+echo "  then open: http://localhost:8000  (works offline)"
 echo

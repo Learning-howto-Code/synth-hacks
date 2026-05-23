@@ -230,7 +230,9 @@ python server.py`
           </a>
         </div>
         <p className="hint" style={{ marginTop: 16 }}>
-          Unsigned binaries. macOS: right-click → Open. Windows: SmartScreen → More info → Run anyway.
+          <strong>Works offline.</strong> Once installed, app opens its own UI at <code>localhost:8000</code> —
+          no internet, no this website needed. Unsigned binaries. macOS: right-click → Open.
+          Windows: SmartScreen → More info → Run anyway.
         </p>
 
         <div className="install-divider"><span>or use the script installer</span></div>
