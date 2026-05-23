@@ -6,6 +6,12 @@ type Peer = {
   state: string
 }
 
+type BLEDevice = {
+  address: string
+  name: string | null
+  rssi: number | null
+}
+
 type Message = {
   type: 'message'
   id?: number
@@ -299,6 +305,7 @@ python server.py`
 
 function Chat({ nickname }: { nickname: string }) {
   const [peers, setPeers] = useState<Peer[]>([])
+  const [bleDevices, setBleDevices] = useState<BLEDevice[]>([])
   const [rooms, setRooms] = useState<string[]>(['#general'])
   const [currentRoom, setCurrentRoom] = useState<string>('#general')
   const [messagesByRoom, setMessagesByRoom] = useState<Record<string, Message[]>>({})
@@ -323,6 +330,7 @@ function Chat({ nickname }: { nickname: string }) {
     ws.onmessage = (ev) => {
       const data = JSON.parse(ev.data)
       if (data.type === 'peers') setPeers(data.peers)
+      else if (data.type === 'ble') setBleDevices(data.devices)
       else if (data.type === 'rooms') setRooms(data.rooms)
       else if (data.type === 'history') {
         setMessagesByRoom((prev) => ({ ...prev, [data.room]: data.messages }))
@@ -432,6 +440,27 @@ function Chat({ nickname }: { nickname: string }) {
                 </div>
               </li>
             ))}
+          </ul>
+        </div>
+
+        <div className="peer-section">
+          <h3>Nearby Bluetooth <span className="count">{bleDevices.length}</span></h3>
+          {bleDevices.length === 0 && (
+            <p className="empty"><small>Scanning…</small></p>
+          )}
+          <ul className="ble-list">
+            {bleDevices
+              .sort((a, b) => (b.rssi ?? -200) - (a.rssi ?? -200))
+              .slice(0, 30)
+              .map((d) => (
+                <li key={d.address}>
+                  <div className="name">{d.name || <span className="unknown">Unknown</span>}</div>
+                  <div className="meta">
+                    <span className="addr">{d.address.slice(0, 8)}…</span>
+                    {d.rssi != null && <span className="rssi">{d.rssi} dBm</span>}
+                  </div>
+                </li>
+              ))}
           </ul>
         </div>
 

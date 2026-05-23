@@ -1,3 +1,4 @@
 fastapi>=0.115
 uvicorn[standard]>=0.34
+bleak>=0.22
 pyobjc-framework-MultipeerConnectivity; sys_platform == 'darwin'

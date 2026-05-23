@@ -732,7 +732,24 @@
   text-transform: uppercase;
   margin: 0 20px 8px;
   opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+
+.peer-section .count {
+  padding: 1px 6px;
+  font-size: 10px;
+  border-radius: 999px;
+  background: var(--code-bg);
+  color: var(--text-h);
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.ble-list .name { font-size: 13px; }
+.ble-list .meta { font-size: 11px; gap: 8px; }
+.ble-list .unknown { opacity: 0.5; font-style: italic; }
 
 .peer-section ul {
   list-style: none;

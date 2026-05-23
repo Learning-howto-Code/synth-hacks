@@ -25,11 +25,18 @@ from typing import Dict, List, Optional, Set
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
+try:
+    from bleak import BleakScanner
+    BLE_AVAILABLE = True
+except ImportError:
+    BLE_AVAILABLE = False
+
 IS_MACOS = sys.platform == "darwin"
 SERVICE_TYPE = "synth-chat"
 DEFAULT_ROOM = "#general"
 DB_PATH = Path(__file__).parent / "mesh.db"
 REPO_DIR = Path(__file__).parent.parent
+BLE_SCAN_INTERVAL = 6.0
 
 if IS_MACOS:
     try:
@@ -121,8 +128,16 @@ class Peer:
 
 
 @dataclass
+class BLEDevice:
+    address: str
+    name: Optional[str]
+    rssi: Optional[int]
+
+
+@dataclass
 class AppState:
     peers: Dict[str, Peer] = field(default_factory=dict)
+    ble_devices: Dict[str, BLEDevice] = field(default_factory=dict)
     sockets: Set[WebSocket] = field(default_factory=set)
 
 
@@ -152,6 +167,39 @@ async def _push_peers() -> None:
         "type": "peers",
         "peers": [{"name": p.name, "state": p.state} for p in app_state.peers.values()],
     })
+
+
+async def _push_ble() -> None:
+    await _broadcast({
+        "type": "ble",
+        "devices": [
+            {"address": d.address, "name": d.name, "rssi": d.rssi}
+            for d in app_state.ble_devices.values()
+        ],
+    })
+
+
+async def _ble_scan_loop() -> None:
+    if not BLE_AVAILABLE:
+        return
+    while True:
+        try:
+            devices = await BleakScanner.discover(timeout=BLE_SCAN_INTERVAL, return_adv=True)
+            current: Dict[str, BLEDevice] = {}
+            for d, adv in devices.values():
+                name = d.name or adv.local_name
+                if not name and not adv.service_uuids:
+                    continue
+                current[d.address] = BLEDevice(
+                    address=d.address,
+                    name=name,
+                    rssi=adv.rssi,
+                )
+            app_state.ble_devices = current
+            await _push_ble()
+        except Exception as e:
+            print(f"[ble] scan error: {e}")
+            await asyncio.sleep(2.0)
 
 
 # ── MPC bridge (Mac only) ─────────────────────────────────────────────────────
@@ -315,9 +363,16 @@ async def lifespan(_: FastAPI):
         print(f"[mesh] running on {sys.platform} in local-only mode (no peer discovery)")
         print(f"[mesh] display name: {args.name}")
 
+    ble_task = None
+    if BLE_AVAILABLE:
+        print(f"[ble] starting scan loop every {BLE_SCAN_INTERVAL}s")
+        ble_task = asyncio.create_task(_ble_scan_loop())
+
     try:
         yield
     finally:
+        if ble_task:
+            ble_task.cancel()
         if _bridge:
             _bridge.stop()
 
@@ -334,6 +389,11 @@ app.add_middleware(
 @app.get("/peers")
 async def get_peers():
     return [{"name": p.name, "state": p.state} for p in app_state.peers.values()]
+
+
+@app.get("/ble")
+async def get_ble():
+    return [{"address": d.address, "name": d.name, "rssi": d.rssi} for d in app_state.ble_devices.values()]
 
 
 @app.get("/rooms")
@@ -368,6 +428,13 @@ async def ws_endpoint(ws: WebSocket):
         await ws.send_json({
             "type": "peers",
             "peers": [{"name": p.name, "state": p.state} for p in app_state.peers.values()],
+        })
+        await ws.send_json({
+            "type": "ble",
+            "devices": [
+                {"address": d.address, "name": d.name, "rssi": d.rssi}
+                for d in app_state.ble_devices.values()
+            ],
         })
         await ws.send_json({"type": "rooms", "rooms": list_rooms()})
         await ws.send_json({
