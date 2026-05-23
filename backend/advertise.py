@@ -12,6 +12,7 @@ async def advertise():
         MESH_CHAR_UUID,
         properties=0x02 | 0x08,  # read | write
         value=bytearray(b"hello"),
+        permissions=0x01 | 0x02
     )
     await server.start()
     print("Advertising...")
