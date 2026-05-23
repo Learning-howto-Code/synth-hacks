@@ -15,10 +15,12 @@ type BLEDevice = {
 type Message = {
   type: 'message'
   id?: number
+  msg_id?: string
   room?: string
   from: string
   text: string
   ts: number
+  hops?: number
 }
 
 type PlatformInfo = {
@@ -151,14 +153,15 @@ python server.py`
 
       <section className="hero">
         <div className="hero-content">
-          <span className="badge">⚡ Peer-to-peer · Offline-capable · Encrypted</span>
+          <span className="badge">⚡ Bluetooth mesh · Multi-hop · Encrypted</span>
           <h1>
-            Chat anywhere.<br />
-            <span className="grad">Even off-grid.</span>
+            Chat with no Wi-Fi.<br />
+            <span className="grad">Mesh through your friends.</span>
           </h1>
           <p className="lede">
-            Mesh is a tiny, open-source chat that runs entirely on your machines.
-            No servers. No accounts. No internet required.
+            Mesh hops messages device-to-device over Bluetooth. No internet, no router,
+            no cell tower. Each device relays for the next — reach friends out of range
+            through people in between.
           </p>
           <div className="hero-actions">
             <button className="primary big" onClick={() => scrollTo(installRef)}>
@@ -261,8 +264,13 @@ python server.py`
         <div className="grid">
           <div className="card">
             <div className="icon">📡</div>
-            <h3>No internet needed</h3>
-            <p>Peers discover each other directly over local network and Bluetooth.</p>
+            <h3>No Wi-Fi required</h3>
+            <p>Bluetooth + peer-to-peer Wi-Fi link devices directly. Works in airplane mode, dead zones, disaster scenarios.</p>
+          </div>
+          <div className="card">
+            <div className="icon">🕸</div>
+            <h3>Multi-hop relay</h3>
+            <p>Friends out of range? Messages hop through devices in between. Up to {6} hops by default.</p>
           </div>
           <div className="card">
             <div className="icon">🔐</div>
@@ -532,8 +540,15 @@ function Chat({ nickname, onSignOut }: { nickname: string; onSignOut: () => void
         <div className="thread" ref={threadRef}>
           {messages.length === 0 && <p className="empty">No messages in {currentRoom} yet. Say hi.</p>}
           {messages.map((m, i) => (
-            <div key={m.id ?? i} className={`msg ${m.from === nickname ? 'mine' : ''}`}>
-              <div className="who">{m.from}</div>
+            <div key={m.msg_id ?? m.id ?? i} className={`msg ${m.from === nickname ? 'mine' : ''}`}>
+              <div className="who">
+                {m.from}
+                {m.hops != null && m.hops > 0 && (
+                  <span className="hops" title={`Relayed through ${m.hops} hop${m.hops > 1 ? 's' : ''}`}>
+                    {' · '}{m.hops}↪
+                  </span>
+                )}
+              </div>
               <div className="bubble">{m.text}</div>
             </div>
           ))}

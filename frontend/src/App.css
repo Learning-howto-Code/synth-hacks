@@ -968,6 +968,11 @@
   margin-bottom: 4px;
 }
 
+.hops {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .bubble {
   display: inline-block;
   padding: 10px 14px;

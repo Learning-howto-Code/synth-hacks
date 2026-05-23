@@ -17,10 +17,12 @@ import subprocess
 import sys
 import threading
 import time
+import uuid
+from collections import deque
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Deque, Dict, List, Optional, Set
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -39,6 +41,8 @@ DEFAULT_ROOM = "#general"
 DB_PATH = Path(__file__).parent / "mesh.db"
 REPO_DIR = Path(__file__).parent.parent
 BLE_SCAN_INTERVAL = 6.0
+MAX_TTL = 6              # max hops a message can travel
+SEEN_CAPACITY = 4096     # how many recent message IDs we remember to dedupe
 
 if IS_MACOS:
     try:
@@ -147,6 +151,22 @@ app_state = AppState()
 _loop: Optional[asyncio.AbstractEventLoop] = None
 _bridge = None
 
+# Gossip de-dupe: bounded set of recently seen message IDs
+_seen_ids: Deque[str] = deque(maxlen=SEEN_CAPACITY)
+_seen_set: Set[str] = set()
+
+
+def _seen(msg_id: str) -> bool:
+    """Return True if we've already processed this message id; record it otherwise."""
+    if msg_id in _seen_set:
+        return True
+    if len(_seen_ids) == _seen_ids.maxlen:
+        old = _seen_ids[0]
+        _seen_set.discard(old)
+    _seen_ids.append(msg_id)
+    _seen_set.add(msg_id)
+    return False
+
 
 def _post(coro) -> None:
     if _loop:
@@ -243,8 +263,10 @@ if MPC_AVAILABLE:
             self._browser.stopBrowsingForPeers()
             self._session.disconnect()
 
-        def send_envelope(self, envelope: dict) -> None:
+        def send_envelope(self, envelope: dict, exclude_peer=None) -> None:
             peers = list(self._session.connectedPeers() or [])
+            if exclude_peer is not None:
+                peers = [p for p in peers if p != exclude_peer]
             if not peers:
                 return
             encoded = json.dumps(envelope).encode("utf-8")
@@ -268,15 +290,31 @@ if MPC_AVAILABLE:
             try:
                 envelope = json.loads(raw.decode("utf-8"))
             except (UnicodeDecodeError, json.JSONDecodeError):
-                # Legacy plain-text from older peers
                 envelope = {"room": DEFAULT_ROOM, "from": peer.displayName(), "text": raw.decode("utf-8", "replace")}
+
+            # Gossip relay: dedupe by msg_id, decrement TTL, forward to other neighbors
+            msg_id = envelope.get("msg_id") or uuid.uuid4().hex
+            envelope["msg_id"] = msg_id
+            if _seen(msg_id):
+                return  # already processed and relayed once; drop
 
             room = envelope.get("room", DEFAULT_ROOM)
             sender = envelope.get("from", peer.displayName())
             text = envelope.get("text", "")
             ts = envelope.get("ts", time.time())
+            hops = int(envelope.get("hops", 0)) + 1
+            envelope["hops"] = hops
+
             stored = store_message(room, sender, text, ts)
+            stored["hops"] = hops
+            stored["msg_id"] = msg_id
             _post(_broadcast(stored))
+
+            ttl = int(envelope.get("ttl", 0)) - 1
+            if ttl > 0:
+                relay = dict(envelope, ttl=ttl)
+                print(f"[mesh] relay msg {msg_id[:8]} from {sender!r} ttl={ttl} hops={hops}")
+                self.send_envelope(relay, exclude_peer=peer)
 
         def session_didReceiveStream_withName_fromPeer_(self, session, stream, name, peer): pass
         def session_didStartReceivingResourceWithName_fromPeer_withProgress_(self, session, name, peer, progress): pass
@@ -493,6 +531,8 @@ async def get_diag():
         "mpc_peer_names": list(app_state.peers.keys()),
         "ble_device_count": len(app_state.ble_devices),
         "ws_client_count": len(app_state.sockets),
+        "mesh_seen_msgs": len(_seen_set),
+        "mesh_max_ttl": MAX_TTL,
         "hint": (
             "If mpc_connected_peer_count is 0 and your friend's server is also running, "
             "check System Settings → Privacy & Security → Local Network → make sure "
@@ -545,10 +585,22 @@ async def ws_endpoint(ws: WebSocket):
                 if not text:
                     continue
                 ts = time.time()
+                msg_id = uuid.uuid4().hex
+                _seen(msg_id)  # mark our own origin so we don't relay it back to ourselves
                 stored = store_message(room, sender, text, ts)
+                stored["msg_id"] = msg_id
+                stored["hops"] = 0
                 await _broadcast(stored)
                 if _bridge:
-                    _bridge.send_envelope({"room": room, "from": sender, "text": text, "ts": ts})
+                    _bridge.send_envelope({
+                        "msg_id": msg_id,
+                        "room": room,
+                        "from": sender,
+                        "text": text,
+                        "ts": ts,
+                        "ttl": MAX_TTL,
+                        "hops": 0,
+                    })
 
             elif kind == "history":
                 room = data.get("room", DEFAULT_ROOM)
