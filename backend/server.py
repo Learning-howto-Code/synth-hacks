@@ -1,46 +1,49 @@
 """
-FastAPI server bridging Apple MultipeerConnectivity to a browser WebSocket.
+FastAPI server for mesh chat.
 
-- MPC handles peer discovery (advertise + browse) and real P2P message delivery.
-- The WebSocket connects the local browser UI to this process.
-- Messages sent by the UI travel: WebSocket → MPC → remote peer's MPC → their WebSocket → their UI.
+- On macOS, uses Apple MultipeerConnectivity for real peer-to-peer discovery + delivery.
+- On other platforms, runs in local-only mode (no peer discovery yet).
+- The browser UI always connects via the WebSocket on port 8000.
 
 Run:
-    python server.py [--name MyMacName]
-
-Requires macOS + pyobjc-framework-MultipeerConnectivity.
+    python server.py [--name MyName]
 """
 
 import argparse
 import asyncio
 import socket
+import sys
 import threading
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
-import objc
-from Foundation import NSData, NSDate, NSObject, NSRunLoop
-from MultipeerConnectivity import (
-    MCEncryptionRequired,
-    MCNearbyServiceAdvertiser,
-    MCNearbyServiceBrowser,
-    MCPeerID,
-    MCSession,
-    MCSessionStateConnected,
-    MCSessionStateConnecting,
-    MCSessionStateNotConnected,
-)
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
+IS_MACOS = sys.platform == "darwin"
 SERVICE_TYPE = "synth-chat"
 
-_STATE_NAMES = {
-    MCSessionStateNotConnected: "NotConnected",
-    MCSessionStateConnecting: "Connecting",
-    MCSessionStateConnected: "Connected",
-}
+if IS_MACOS:
+    try:
+        import objc
+        from Foundation import NSData, NSDate, NSObject, NSRunLoop
+        from MultipeerConnectivity import (
+            MCEncryptionRequired,
+            MCNearbyServiceAdvertiser,
+            MCNearbyServiceBrowser,
+            MCPeerID,
+            MCSession,
+            MCSessionStateConnected,
+            MCSessionStateConnecting,
+            MCSessionStateNotConnected,
+        )
+        MPC_AVAILABLE = True
+    except ImportError as e:
+        print(f"[mpc] pyobjc-framework-MultipeerConnectivity missing: {e}")
+        MPC_AVAILABLE = False
+else:
+    MPC_AVAILABLE = False
 
 
 @dataclass
@@ -58,7 +61,7 @@ class AppState:
 
 app_state = AppState()
 _loop: Optional[asyncio.AbstractEventLoop] = None
-_bridge: Optional["MPCBridge"] = None
+_bridge = None  # MPCBridge on Mac, None elsewhere
 
 
 def _post(coro) -> None:
@@ -85,113 +88,114 @@ async def _push_peers() -> None:
     })
 
 
-class MPCBridge(NSObject):
-    """Delegate for MCSession, MCNearbyServiceAdvertiser, and MCNearbyServiceBrowser."""
+if MPC_AVAILABLE:
+    _STATE_NAMES = {
+        MCSessionStateNotConnected: "NotConnected",
+        MCSessionStateConnecting: "Connecting",
+        MCSessionStateConnected: "Connected",
+    }
 
-    def initWithDisplayName_(self, name: str):
-        self = objc.super(MPCBridge, self).init()
-        if self is None:
-            return None
-        self._peer_id = MCPeerID.alloc().initWithDisplayName_(name)
-        self._session = MCSession.alloc().initWithPeer_securityIdentity_encryptionPreference_(
-            self._peer_id, None, MCEncryptionRequired
-        )
-        self._session.setDelegate_(self)
-        self._advertiser = MCNearbyServiceAdvertiser.alloc().initWithPeer_discoveryInfo_serviceType_(
-            self._peer_id, None, SERVICE_TYPE
-        )
-        self._advertiser.setDelegate_(self)
-        self._browser = MCNearbyServiceBrowser.alloc().initWithPeer_serviceType_(
-            self._peer_id, SERVICE_TYPE
-        )
-        self._browser.setDelegate_(self)
-        return self
+    class MPCBridge(NSObject):
+        """Delegate for MCSession, MCNearbyServiceAdvertiser, and MCNearbyServiceBrowser."""
 
-    def start(self) -> None:
-        self._advertiser.startAdvertisingPeer()
-        self._browser.startBrowsingForPeers()
-        print(f"[mpc] advertising + browsing as {self._peer_id.displayName()!r} on '{SERVICE_TYPE}'")
+        def initWithDisplayName_(self, name: str):
+            self = objc.super(MPCBridge, self).init()
+            if self is None:
+                return None
+            self._peer_id = MCPeerID.alloc().initWithDisplayName_(name)
+            self._session = MCSession.alloc().initWithPeer_securityIdentity_encryptionPreference_(
+                self._peer_id, None, MCEncryptionRequired
+            )
+            self._session.setDelegate_(self)
+            self._advertiser = MCNearbyServiceAdvertiser.alloc().initWithPeer_discoveryInfo_serviceType_(
+                self._peer_id, None, SERVICE_TYPE
+            )
+            self._advertiser.setDelegate_(self)
+            self._browser = MCNearbyServiceBrowser.alloc().initWithPeer_serviceType_(
+                self._peer_id, SERVICE_TYPE
+            )
+            self._browser.setDelegate_(self)
+            return self
 
-    def stop(self) -> None:
-        self._advertiser.stopAdvertisingPeer()
-        self._browser.stopBrowsingForPeers()
-        self._session.disconnect()
+        def start(self) -> None:
+            self._advertiser.startAdvertisingPeer()
+            self._browser.startBrowsingForPeers()
+            print(f"[mpc] advertising + browsing as {self._peer_id.displayName()!r} on '{SERVICE_TYPE}'")
 
-    def send_text(self, text: str) -> None:
-        peers = list(self._session.connectedPeers() or [])
-        if not peers:
-            return
-        encoded = text.encode("utf-8")
-        data = NSData.dataWithBytes_length_(encoded, len(encoded))
-        ok, err = self._session.sendData_toPeers_withMode_error_(data, peers, 0, None)
-        if not ok:
-            print(f"[mpc] send error: {err}")
+        def stop(self) -> None:
+            self._advertiser.stopAdvertisingPeer()
+            self._browser.stopBrowsingForPeers()
+            self._session.disconnect()
 
-    # ── MCSessionDelegate ──────────────────────────────────────────────────────
+        def send_text(self, text: str) -> None:
+            peers = list(self._session.connectedPeers() or [])
+            if not peers:
+                return
+            encoded = text.encode("utf-8")
+            data = NSData.dataWithBytes_length_(encoded, len(encoded))
+            ok, err = self._session.sendData_toPeers_withMode_error_(data, peers, 0, None)
+            if not ok:
+                print(f"[mpc] send error: {err}")
 
-    def session_peer_didChangeState_(self, session, peer, peer_state):
-        name = peer.displayName()
-        label = _STATE_NAMES.get(peer_state, str(peer_state))
-        if peer_state == MCSessionStateNotConnected:
-            app_state.peers.pop(name, None)
-        else:
-            app_state.peers[name] = Peer(name=name, state=label)
-        print(f"[mpc] {name} → {label}")
-        _post(_push_peers())
+        def session_peer_didChangeState_(self, session, peer, peer_state):
+            name = peer.displayName()
+            label = _STATE_NAMES.get(peer_state, str(peer_state))
+            if peer_state == MCSessionStateNotConnected:
+                app_state.peers.pop(name, None)
+            else:
+                app_state.peers[name] = Peer(name=name, state=label)
+            print(f"[mpc] {name} → {label}")
+            _post(_push_peers())
 
-    def session_didReceiveData_fromPeer_(self, session, data, peer):
-        try:
-            text = bytes(data).decode("utf-8")
-        except UnicodeDecodeError:
-            text = repr(bytes(data))
-        msg = {
-            "type": "message",
-            "from": peer.displayName(),
-            "text": text,
-            "ts": 0,
-        }
-        app_state.messages.append(msg)
-        _post(_broadcast(msg))
+        def session_didReceiveData_fromPeer_(self, session, data, peer):
+            try:
+                text = bytes(data).decode("utf-8")
+            except UnicodeDecodeError:
+                text = repr(bytes(data))
+            msg = {
+                "type": "message",
+                "from": peer.displayName(),
+                "text": text,
+                "ts": 0,
+            }
+            app_state.messages.append(msg)
+            _post(_broadcast(msg))
 
-    def session_didReceiveStream_withName_fromPeer_(self, session, stream, name, peer): pass
-    def session_didStartReceivingResourceWithName_fromPeer_withProgress_(self, session, name, peer, progress): pass
-    def session_didFinishReceivingResourceWithName_fromPeer_atURL_withError_(self, session, name, peer, url, err): pass
+        def session_didReceiveStream_withName_fromPeer_(self, session, stream, name, peer): pass
+        def session_didStartReceivingResourceWithName_fromPeer_withProgress_(self, session, name, peer, progress): pass
+        def session_didFinishReceivingResourceWithName_fromPeer_atURL_withError_(self, session, name, peer, url, err): pass
 
-    def session_didReceiveCertificate_fromPeer_certificateHandler_(self, session, cert, peer, handler):
-        handler(True)
+        def session_didReceiveCertificate_fromPeer_certificateHandler_(self, session, cert, peer, handler):
+            handler(True)
 
-    # ── MCNearbyServiceAdvertiserDelegate ─────────────────────────────────────
+        def advertiser_didReceiveInvitationFromPeer_withContext_invitationHandler_(
+            self, advertiser, peer, context, handler
+        ):
+            print(f"[mpc] invitation from {peer.displayName()} → accept")
+            handler(True, self._session)
 
-    def advertiser_didReceiveInvitationFromPeer_withContext_invitationHandler_(
-        self, advertiser, peer, context, handler
-    ):
-        print(f"[mpc] invitation from {peer.displayName()} → accept")
-        handler(True, self._session)
+        def advertiser_didNotStartAdvertisingPeer_(self, advertiser, err):
+            print(f"[mpc] advertiser error: {err}")
 
-    def advertiser_didNotStartAdvertisingPeer_(self, advertiser, err):
-        print(f"[mpc] advertiser error: {err}")
+        def browser_foundPeer_withDiscoveryInfo_(self, browser, peer, info):
+            if peer.displayName() == self._peer_id.displayName():
+                return
+            print(f"[mpc] found {peer.displayName()} → invite")
+            browser.invitePeer_toSession_withContext_timeout_(peer, self._session, None, 30.0)
 
-    # ── MCNearbyServiceBrowserDelegate ────────────────────────────────────────
+        def browser_lostPeer_(self, browser, peer):
+            app_state.peers.pop(peer.displayName(), None)
+            print(f"[mpc] lost {peer.displayName()}")
+            _post(_push_peers())
 
-    def browser_foundPeer_withDiscoveryInfo_(self, browser, peer, info):
-        if peer.displayName() == self._peer_id.displayName():
-            return
-        print(f"[mpc] found {peer.displayName()} → invite")
-        browser.invitePeer_toSession_withContext_timeout_(peer, self._session, None, 30.0)
-
-    def browser_lostPeer_(self, browser, peer):
-        app_state.peers.pop(peer.displayName(), None)
-        print(f"[mpc] lost {peer.displayName()}")
-        _post(_push_peers())
-
-    def browser_didNotStartBrowsingForPeers_(self, browser, err):
-        print(f"[mpc] browser error: {err}")
+        def browser_didNotStartBrowsingForPeers_(self, browser, err):
+            print(f"[mpc] browser error: {err}")
 
 
-def _run_runloop() -> None:
-    rl = NSRunLoop.currentRunLoop()
-    while True:
-        rl.runUntilDate_(NSDate.dateWithTimeIntervalSinceNow_(0.1))
+    def _run_runloop() -> None:
+        rl = NSRunLoop.currentRunLoop()
+        while True:
+            rl.runUntilDate_(NSDate.dateWithTimeIntervalSinceNow_(0.1))
 
 
 @asynccontextmanager
@@ -201,18 +205,22 @@ async def lifespan(_: FastAPI):
 
     ap = argparse.ArgumentParser(add_help=False)
     ap.add_argument("--name", default=socket.gethostname())
-    args, _ = ap.parse_known_args()
+    args, _unknown = ap.parse_known_args()
 
-    _bridge = MPCBridge.alloc().initWithDisplayName_(args.name)
-    _bridge.start()
-
-    t = threading.Thread(target=_run_runloop, daemon=True)
-    t.start()
+    if MPC_AVAILABLE:
+        _bridge = MPCBridge.alloc().initWithDisplayName_(args.name)
+        _bridge.start()
+        t = threading.Thread(target=_run_runloop, daemon=True)
+        t.start()
+    else:
+        print(f"[mesh] running on {sys.platform} in local-only mode (no peer discovery)")
+        print(f"[mesh] display name: {args.name}")
 
     try:
         yield
     finally:
-        _bridge.stop()
+        if _bridge:
+            _bridge.stop()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -234,6 +242,15 @@ async def get_messages():
     return app_state.messages
 
 
+@app.get("/platform")
+async def get_platform():
+    return {
+        "platform": sys.platform,
+        "mpc_available": MPC_AVAILABLE,
+        "mode": "p2p" if MPC_AVAILABLE else "local-only",
+    }
+
+
 @app.websocket("/ws")
 async def ws_endpoint(ws: WebSocket):
     await ws.accept()
@@ -244,6 +261,11 @@ async def ws_endpoint(ws: WebSocket):
             "peers": [{"name": p.name, "state": p.state} for p in app_state.peers.values()],
         })
         await ws.send_json({"type": "history", "messages": app_state.messages})
+        await ws.send_json({
+            "type": "platform",
+            "platform": sys.platform,
+            "mode": "p2p" if MPC_AVAILABLE else "local-only",
+        })
         while True:
             data = await ws.receive_json()
             if data.get("type") == "message":
@@ -257,7 +279,6 @@ async def ws_endpoint(ws: WebSocket):
                 }
                 app_state.messages.append(msg)
                 await _broadcast(msg)
-                # forward over MPC to all connected peers
                 if _bridge:
                     _bridge.send_text(text)
     except WebSocketDisconnect:
