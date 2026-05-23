@@ -652,8 +652,63 @@
   gap: 12px;
   font-size: 12px;
   font-family: var(--mono);
-  margin-top: 4px;
-  opacity: 0.7;
+  margin-top: 6px;
+  opacity: 0.9;
+}
+
+.pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  background: var(--code-bg);
+  color: var(--text);
+}
+
+.pill.connected { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+.pill.connecting { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
+.pill.notconnected { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+
+.peer-banner {
+  margin: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: rgba(241, 196, 15, 0.1);
+  border: 1px solid rgba(241, 196, 15, 0.3);
+  font-size: 12px;
+}
+
+.peer-banner strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #f1c40f;
+  font-size: 13px;
+}
+
+.peer-banner p {
+  margin: 0;
+  opacity: 0.85;
+  line-height: 1.5;
+}
+
+.peers-foot {
+  margin-top: auto;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+  font-size: 11px;
+  opacity: 0.6;
+  text-align: center;
+}
+
+.empty code {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--code-bg);
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: var(--accent);
 }
 
 .empty {

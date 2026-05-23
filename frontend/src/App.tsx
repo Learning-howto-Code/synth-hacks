@@ -2,10 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 type Peer = {
-  address: string
-  name: string | null
-  rssi: number | null
-  last_seen: number
+  name: string
+  state: string
 }
 
 type Message = {
@@ -13,6 +11,12 @@ type Message = {
   from: string
   text: string
   ts: number
+}
+
+type PlatformInfo = {
+  type: 'platform'
+  platform: string
+  mode: 'p2p' | 'local-only'
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -289,6 +293,7 @@ function Chat({ nickname }: { nickname: string }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const [connected, setConnected] = useState(false)
+  const [mode, setMode] = useState<'p2p' | 'local-only' | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const threadRef = useRef<HTMLDivElement | null>(null)
 
@@ -307,6 +312,7 @@ function Chat({ nickname }: { nickname: string }) {
       if (data.type === 'peers') setPeers(data.peers)
       else if (data.type === 'history') setMessages(data.messages)
       else if (data.type === 'message') setMessages((m) => [...m, data])
+      else if (data.type === 'platform') setMode((data as PlatformInfo).mode)
     }
     return () => ws.close()
   }, [])
@@ -329,18 +335,28 @@ function Chat({ nickname }: { nickname: string }) {
           <h2>Peers</h2>
           <span className={`dot-status ${connected ? 'on' : 'off'}`} title={connected ? 'connected' : 'disconnected'} />
         </header>
-        {peers.length === 0 && <p className="empty">No peers found yet…</p>}
+        {mode === 'local-only' && (
+          <div className="peer-banner">
+            <strong>Local-only mode</strong>
+            <p>Peer discovery (MPC) is macOS only. Your messages stay in this browser session for now.</p>
+          </div>
+        )}
+        {mode === 'p2p' && peers.length === 0 && (
+          <p className="empty">Waiting for peers…<br/><small>Ask a friend to run <code>python server.py</code> on the same Wi-Fi.</small></p>
+        )}
         <ul>
           {peers.map((p) => (
-            <li key={p.address}>
-              <div className="name">{p.name || 'Unknown'}</div>
+            <li key={p.name}>
+              <div className="name">{p.name}</div>
               <div className="meta">
-                <span className="addr">{p.address.slice(0, 8)}…</span>
-                {p.rssi != null && <span className="rssi">{p.rssi} dBm</span>}
+                <span className={`pill ${p.state.toLowerCase()}`}>{p.state}</span>
               </div>
             </li>
           ))}
         </ul>
+        <footer className="peers-foot">
+          <small>Messages broadcast to all connected peers.</small>
+        </footer>
       </aside>
 
       <main className="chat">
