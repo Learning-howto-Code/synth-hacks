@@ -43,12 +43,21 @@ pip install --quiet --upgrade pip
 pip install --quiet -r "$TARGET_DIR/backend/requirements.txt"
 ok "Dependencies installed"
 
+if command -v npm >/dev/null 2>&1; then
+  info "Building frontend (one-time)"
+  (cd "$TARGET_DIR/frontend" && npm install --silent && npm run build) || info "frontend build failed, will fall back to web UI"
+  ok "Frontend built"
+else
+  info "npm not found; desktop app will redirect to web UI"
+fi
+
 echo
 bold "Installed at $TARGET_DIR"
 echo
-bold "Start the server:"
-echo "  cd $TARGET_DIR/backend && source ../venv/bin/activate && python server.py"
+bold "Launch desktop app:"
+echo "  $TARGET_DIR/venv/bin/python $TARGET_DIR/desktop.py"
 echo
-bold "Then open:"
-echo "  https://frontend-gold-five-84.vercel.app"
+bold "Or run server only (web UI):"
+echo "  $TARGET_DIR/venv/bin/python $TARGET_DIR/backend/server.py"
+echo "  then open: https://frontend-gold-five-84.vercel.app"
 echo

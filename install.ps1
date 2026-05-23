@@ -55,12 +55,24 @@ $venvPython = Join-Path $Target 'venv\Scripts\python.exe'
 & $venvPython -m pip install --quiet -r (Join-Path $Target 'backend\requirements.txt')
 Ok "Dependencies installed"
 
+if (Get-Command npm -ErrorAction SilentlyContinue) {
+    Info "Building frontend (one-time)"
+    Push-Location (Join-Path $Target 'frontend')
+    npm install --silent
+    npm run build
+    Pop-Location
+    Ok "Frontend built"
+} else {
+    Info "npm not found; desktop app will redirect to web UI"
+}
+
 Write-Host ""
 Bold "Installed at $Target"
 Write-Host ""
-Bold "Start the server:"
-Write-Host "  cd $Target\backend; ..\venv\Scripts\python.exe server.py"
+Bold "Launch desktop app:"
+Write-Host "  $Target\venv\Scripts\python.exe $Target\desktop.py"
 Write-Host ""
-Bold "Then open:"
-Write-Host "  https://frontend-gold-five-84.vercel.app"
+Bold "Or run server only (web UI):"
+Write-Host "  $Target\venv\Scripts\python.exe $Target\backend\server.py"
+Write-Host "  then open: https://frontend-gold-five-84.vercel.app"
 Write-Host ""

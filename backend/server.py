@@ -24,6 +24,8 @@ from typing import Dict, List, Optional, Set
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 try:
     from bleak import BleakScanner
@@ -342,6 +344,46 @@ def get_version_info() -> dict:
     }
 
 
+def apply_update() -> dict:
+    """git pull + pip install + rebuild frontend. Caller must restart."""
+    out_lines = []
+    try:
+        pull = subprocess.run(
+            ["git", "-C", str(REPO_DIR), "pull", "--ff-only"],
+            capture_output=True, text=True, timeout=30,
+        )
+        out_lines.append(("git pull", pull.returncode, pull.stdout + pull.stderr))
+        if pull.returncode != 0:
+            return {"ok": False, "steps": out_lines, "message": "git pull failed"}
+
+        pip = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "--quiet", "-r", str(REPO_DIR / "backend" / "requirements.txt")],
+            capture_output=True, text=True, timeout=120,
+        )
+        out_lines.append(("pip install", pip.returncode, pip.stdout + pip.stderr))
+
+        # Try to rebuild frontend if npm available
+        frontend = REPO_DIR / "frontend"
+        if (frontend / "package.json").exists():
+            try:
+                build = subprocess.run(
+                    ["npm", "run", "build"],
+                    cwd=frontend, capture_output=True, text=True, timeout=120,
+                )
+                out_lines.append(("npm run build", build.returncode, build.stdout + build.stderr))
+            except FileNotFoundError:
+                out_lines.append(("npm run build", 1, "npm not found, skipped frontend build"))
+
+        return {
+            "ok": True,
+            "steps": out_lines,
+            "message": "Update applied. Restart to load new code.",
+            "new_version": _git("rev-parse", "HEAD")[:8],
+        }
+    except Exception as e:
+        return {"ok": False, "steps": out_lines, "message": f"Update error: {e}"}
+
+
 # ── App ───────────────────────────────────────────────────────────────────────
 
 @asynccontextmanager
@@ -420,6 +462,11 @@ async def get_version():
     return get_version_info()
 
 
+@app.post("/update")
+async def post_update():
+    return apply_update()
+
+
 @app.websocket("/ws")
 async def ws_endpoint(ws: WebSocket):
     await ws.accept()
@@ -473,6 +520,29 @@ async def ws_endpoint(ws: WebSocket):
         pass
     finally:
         app_state.sockets.discard(ws)
+
+
+DIST_DIR = REPO_DIR / "frontend" / "dist"
+if DIST_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=DIST_DIR / "assets"), name="assets")
+
+    @app.get("/")
+    async def index():
+        return FileResponse(DIST_DIR / "index.html")
+
+    # SPA fallback: serve index.html for unknown routes (but not /api ones above)
+    @app.get("/{path:path}")
+    async def spa(path: str):
+        f = DIST_DIR / path
+        if f.is_file():
+            return FileResponse(f)
+        return FileResponse(DIST_DIR / "index.html")
+else:
+    @app.get("/")
+    async def index_dev():
+        return {
+            "message": "Frontend not built. Run `cd frontend && npm install && npm run build`, or open https://frontend-gold-five-84.vercel.app",
+        }
 
 
 if __name__ == "__main__":
