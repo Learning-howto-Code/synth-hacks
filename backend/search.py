@@ -33,6 +33,7 @@ async def main(args: argparse.Namespace):
         print(d)
         print("-" * len(str(d)))
         print(a)
+        
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

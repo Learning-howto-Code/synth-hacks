@@ -1,0 +1,639 @@
+Last login: Sat May 23 08:51:43 on ttys004
+You have new mail.
+jakehopkins@Jakes-Macbook synth-hacks % python3 backend/search.py 
+Traceback (most recent call last):
+  File "/Users/jakehopkins/Projects/synth-hacks/backend/search.py", line 15, in <module>
+    from bleak import BleakScanner
+ModuleNotFoundError: No module named 'bleak'
+jakehopkins@Jakes-Macbook synth-hacks % source venv/bin/activate
+(venv) jakehopkins@Jakes-Macbook synth-hacks % python3 backend/search.py
+scanning for 5 seconds, please wait...
+
+012B1371-04E8-86FC-7CF7-A840DF022961: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00H\xee\xef\xf2\x12\xe3\xce\xe6\x94\xf5\xe3\x9dV\x10\x06A\x1d\r\x07\x11h'}, rssi=-79)
+
+01494EB2-EEAD-226F-A875-C1788CF3DAD2: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x073\x1f"3\xab\xb6h'}, tx_power=12, rssi=-84)
+
+016CA57F-1F34-5FAF-B2A6-6374C6254C3A: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b"\x0c\x0e\x00\x8eJ\xbb\xc5D\x9e\xfa'_[2%\xe4\x10\x06M\x1d\xf5\x07YH"}, rssi=-74)
+
+0300026B-5014-9B31-97E6-EB9E64295AD7: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06D\x1d@\x1d\x0bh'}, tx_power=12, rssi=-97)
+
+08F75BBF-369D-DD26-5426-0BF306460583: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00\x9c\x06\x1e\xadC\x8d\x94,\x8aX\x1aw\x91\x10\x063\x1dMn\xbbH'}, rssi=-86)
+
+099C9557-BDD7-C580-68B4-60FB0EF5A0A3: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0f\t\xa03\x82\xa5\xd8\x04\xce\xef\x98\x10\x02\x04\x0c'}, tx_power=12, rssi=-99)
+
+0B106480-7133-CFAE-559B-54AD38E2977B: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x069\x1e\xcf\xdeR\x89'}, tx_power=12, rssi=-95)
+
+0F66D0C3-A450-7F1A-7CEF-94CAD8F03AB3: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13Z\xc0\x00\x00\x02\x1bX\n\x04\x12\xff\x97\xac'}, rssi=-97)
+
+1060617F-7302-D8DA-23BB-482DD221B2E6: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06I\x1d\xba:\xeeh'}, tx_power=12, rssi=-79)
+
+1789F1FF-E1BD-6672-A967-30ABC9EF1CD9: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06D\x1d@\x1d\x0bh'}, tx_power=12, rssi=-97)
+
+196EAE07-A56D-7853-0798-D48F662D1A94: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\x0f "\xf6\x83\xa7\xff\x18\x8f\x82E_\xbf\x17\x87\xdd\x0b/*\xa6C\xd0\x11\'9\x16'}, rssi=-79)
+
+1996F009-CC0D-FEE8-06C6-96632DC04FF7: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05\x03\x18\xe4&Z'}, tx_power=24, rssi=-65)
+
+1B165917-1BA7-2C27-67C3-E82106A17CA2: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x062\x1eg=\xe3\x7f'}, tx_power=12, rssi=-87)
+
+1B7EFE53-C521-8881-D3B2-70DF3451DAD8: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06\x08\x19F\x89\x17\x18'}, tx_power=6, rssi=-72)
+
+1CEE7DBB-84A3-289B-DD84-D493991EE129: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05,\x98\x8c\xe0:'}, tx_power=0, rssi=-64)
+
+1D08792F-F0E3-7B70-2AC9-2AF5F6DF51E4: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06A\x19\x949~\x18'}, tx_power=3, rssi=-95)
+
+1EC82939-6664-6554-92D6-BA42A5B996B1: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06I\x1d\xba:\xeeh'}, tx_power=12, rssi=-79)
+
+1F05FDFD-F2C1-BF62-68B5-33A82D2106C1: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06\x01\x1d\xe5\xd1M8'}, tx_power=12, rssi=-71)
+
+1F82B2C8-7A21-5451-CE00-FE498D2326C9: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b"\x0c\x0e\x00\xf7\xb0i%?\xea\xbb\x18\rj\xd7''\x10\x06L\x1dj\x89a8"}, rssi=-86)
+
+1FF7540A-BD48-7910-5A22-535772CD91B4: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06:\x1e\xc10\x8d\xd6'}, tx_power=12, rssi=-103)
+
+213D9C96-744B-D178-C51D-F19779F793C9: None
+------------------------------------------
+AdvertisementData(service_data={'0000fe2c-0000-1000-8000-00805f9b34fb': b'\x100\x00\x00\x00!\xcc\x16\x14%'}, tx_power=-8, rssi=-65)
+
+218DBEED-3C6A-B814-501E-5E42D420744A: WH-CH720N
+-----------------------------------------------
+AdvertisementData(local_name='WH-CH720N', manufacturer_data={61510: b'\xce^g\xf1\x80W'}, service_uuids=['0000fe03-0000-1000-8000-00805f9b34fb'], rssi=-88)
+
+21FE83B7-198B-FDBA-4081-85054F440650: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00\xa7J\x86\xcd\xe9\xf7M|\x91I\t\xf6$\x10\x06A\x1d\xc2\r\xfcX'}, rssi=-94)
+
+2650C7FE-4CCC-4CB5-ABDF-9019131CAD41: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x052\x1c\xe5U\xa9'}, tx_power=12, rssi=-87)
+
+28237CE5-F8C8-7702-A241-9FDDA8569D20: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t "n\xf1\\\xc7r)\x9e\\\xb9\xa4\xb8\xe3\xfa\xae\xf8\xb1e\x9eKR.J\xed'}, rssi=-89)
+
+2963C305-831C-FADD-B75A-9B45BE2B5B91: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x00\xc1\x8bOgz"\''}, rssi=-90)
+
+2C967EC2-FEB4-7DCB-3038-058F25537600: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b"\x0c\x0e\x00\x8eJ\xbb\xc5D\x9e\xfa'_[2%\xe4\x10\x06M\x1d\xf5\x07YH"}, rssi=-75)
+
+2E39A7EF-3680-EE43-9EAE-0E173EA0DE68: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08\x8e\xb8\xc7\x0c\xd4\xfcj\x96\x11\x8c|c\xa4\x10\x06I\x1d\x1f\x94A\x18'}, rssi=-91)
+
+2EA2531F-DFB2-6458-18D6-9C9A2B193BFF: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x07>\x1f\x87+\xc0\xc0H'}, tx_power=0, rssi=-85)
+
+2FE58A79-77F7-2360-917F-2C3607A0D057: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x07;\x1ft \xae8\x08'}, tx_power=12, rssi=-90)
+
+32CBE296-D0FB-2CA7-2404-EBA95DBB2FF4: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08\x8e\xb8\xc7\x0c\xd4\xfcj\x96\x11\x8c|c\xa4\x10\x06I\x1d\x1f\x94A\x18'}, rssi=-94)
+
+340C0413-DF4C-1FDF-A026-7ED75174D470: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x00C\xe9\xd0\xa8Y\xf7Q'}, rssi=-99)
+
+3419EDFA-4DB8-0725-4933-1205663964C6: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13$\xac\x14\n\x06\x1bX\x16\x08\x00\xa1\xbc#\xc6p\xb5h'}, rssi=-80)
+
+36E2A135-27FB-71DA-508F-4E42CA2EA713: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t!*\x9b@\xc3\xef\xf60Riyansh-Laptop'}, rssi=-71)
+
+386A2C90-2688-BB69-736A-7AC1DFFEBCE9: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x00\xf2\x888d9\xa5X'}, rssi=-102)
+
+3AD9D176-8E40-F2C0-E439-9A7213C8DBA1: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x00sa\xc0\xf7p\x0fA'}, rssi=-91)
+
+3E0FAECD-A23C-9B3E-D830-4E4B15DD0C1D: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\x0f "L\x82p{\x1dC;\x84F\x07D\x1c\xc1\x85\xd6\xfa\x93\r\xfe9\x08\x99d'}, rssi=-94)
+
+3E361AED-5B43-78F3-5884-91436452A748: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b"\x0c\x0e\x00\xf7\xb0i%?\xea\xbb\x18\rj\xd7''\x10\x06L\x1dj\x89a8"}, rssi=-73)
+
+3E8A84B7-941C-4E8B-19C7-5F6D77C07865: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05\x0b\x98\x82kr'}, tx_power=0, rssi=-91)
+
+430683AE-F041-0223-A122-4656A03298C8: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b"\t\x08\x13$\xc0\x00\x00\x02\x1bX\x16\x08\x00\xa6\xb4\xeb''8\xf6"}, rssi=-95)
+
+454D0001-ED36-0EF2-1128-A2EE97FBF974: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05\x1c\x18VL\xba'}, tx_power=12, rssi=-74)
+
+46F709FB-3512-8990-5F15-4F2BE36BDC75: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x068\x1d\xee\xcaHH\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00'}, tx_power=11, rssi=-82)
+
+4805AC42-ABEF-65AD-1355-6D8488650F9F: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06D\x1d\xd7\xefr8'}, tx_power=12, rssi=-83)
+
+48CAE943-04B1-F737-EB13-5AB967293E0F: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13a\xc0\x00\x00\x02\x1bX\x16\x08\x00\xf13u+~\xff\xde'}, rssi=-63)
+
+49157F70-C77B-BF81-7BF9-1222DB64F5EB: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t \x02\xecB)\xa3A\x17\xa7i1\x9a|\xbdH\x07\x8e\xbe<J0\xed\xb1\xf0\xf5'}, rssi=-91)
+
+49947509-03E8-0F79-77C5-2B2AC4161CCF: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\x0f ""\x98u\x83\x02\xbd\xd2\x95vk\xd5\xc0\xe2\xbb\xf5\xff\xddq\x8b\xb8\x12\xf3{'}, rssi=-77)
+
+4CC6E76D-E748-8CC7-2924-2319A68D3218: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x02\xc0\x00\x00\x02\x1bX\x16\x08\x00\x91\xec\xe4\xe1\x9ai\x02'}, rssi=-73)
+
+50FFE277-28D5-DF87-AF20-672864C4A187: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t "\x14\x0f\xce\xd1\xcd\x17,\r\x03y\xd0\xe8[\x08\x82\xec\xf7K\xcc{\xcc=^'}, rssi=-80)
+
+539E9A30-AAA4-6183-7727-1988DE461223: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08\x85gn2C*\x12!\x83.\xbcza\x10\x06N\x1dM?\rx'}, rssi=-93)
+
+53CF4D2B-8F29-CF21-B9E6-B54FF0736DDE: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x03O\r(\x0f\t\xa03\x01;\xb1\x04\xe5U\xa9'}, tx_power=6, rssi=-86)
+
+54B19C5C-6C50-8A3A-BFAA-388607141977: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08q=\x19\xa4J\xefwqC@?\xc3\x90\x10\x06H\x1d\n"\x05('}, rssi=-73)
+
+56528C8D-BBFE-553F-745C-F7DF1E82CC4F: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x067\x1e\xce\xef\x98\x87'}, tx_power=8, rssi=-90)
+
+57005C6E-256A-063D-ED52-169BD739439F: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x06\xc0\x00\x00\x02\x1bX\x16\x08\x00\x99\x85\xf1\\\x0e\x1c\xa3'}, rssi=-84)
+
+57E16F6F-1BDD-A4CC-D29F-7AD200BAD5C3: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t "\xe8\x8c\xd8\xa8\x8c\x89y,\x95DeRD\xd85\xc3\x13\x07\xd6\xde\x845\xc0'}, rssi=-80)
+
+58DF37B6-63C4-9392-066D-8E5C00A397AE: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x15\xc0\x00\x00\x02\x1bX\x16\x08\x00E\x15oe\xdd\x17\x07'}, rssi=-84)
+
+59661E87-DF90-7726-9A13-41745BD2E06D: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x061\x1e\x14\xa1\x0c\xf7'}, tx_power=12, rssi=-83)
+
+5BBBB98D-12EB-0C05-A3AE-BC0982DE0E4A: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05*\x18\x08\xf1\xfe'}, tx_power=11, rssi=-87)
+
+5BBFE9A3-0F79-F8CD-2B14-DD68672FAB62: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\x0f!*C0\xfa8h\x10PhantomUnicorn'}, rssi=-57)
+
+5C6956CD-132B-6F07-3C18-07F23310A6AC: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08\xa1\t\xa3\xd8\xf0_\xce(\xe5U~\xf9e\x10\x06C\x1d\xae\xc04\x18'}, rssi=-94)
+
+5CD0E77A-81DA-8D42-5DD0-E088EAC6D98F: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t "\x14R\x9e\xc1\x9c\xb9\x80\x04\t\xc0\x1e\x95\xa5\x08\xb8\xaf\x1c\x90\xa5V\xf7I+'}, rssi=-88)
+
+5D419D49-8542-12EA-7CC1-910D0E216E15: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06N\x1d\xbe\xfe\xf18'}, tx_power=12, rssi=-88)
+
+6472283D-CDC2-0D97-6302-5F3DDED8874C: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00\xa7J\x86\xcd\xe9\xf7M|\x91I\t\xf6$\x10\x06A\x1d\xc2\r\xfcX'}, rssi=-90)
+
+64907781-3760-33C6-16D8-A2D455C047D7: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x00\x94q\xc7(@3\x18'}, rssi=-70)
+
+6523C22D-77F9-7BC9-65D3-EAF4945A5F17: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\t\xc0\x00\x00\x02\x1bX\x16\x08\x00\xf8F\xcd\xb7\x84;\x97'}, rssi=-80)
+
+66893CF9-9388-B079-C970-2D78E566ACAF: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00\x8c\x90\xec\x9f\xd7S&\x18\x9f\x94j\xe8\x8b\x10\x06N\x1d\x02d\x8ch'}, rssi=-83)
+
+680A68C0-482A-CB2F-E5C8-713C2D95029E: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x05\xc0\x00\x00\x02\x1bX\x16\x08\x00\x0e\x11Kx\xab<\x18'}, rssi=-93)
+
+681FEA86-DCE3-3370-CA71-36044999353D: LE-Bose Revolve+ SoundLink
+----------------------------------------------------------------
+AdvertisementData(manufacturer_data={784: b'@\x11\x020'}, service_uuids=['0000febe-0000-1000-8000-00805f9b34fb'], rssi=-93)
+
+6860D036-0CB5-95A6-1C25-B6DDCF2385C5: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13$\xc0\x00\x00\x02\x1bX\x16\x08\x00\xd1\xa1\xc7@\x16&\xb2'}, rssi=-63)
+
+6D2EB8D2-795E-502C-DF50-820E5CAB23FD: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x073\x1f\xf8S\xc6j8'}, tx_power=0, rssi=-83)
+
+7088D2FD-24BD-B312-B265-A85090BDDA13: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x006o\x85z\xcf)\x982\\=p\xec\xdc\x10\x06K\x1dih\x15h'}, rssi=-86)
+
+737E3F91-003F-2433-B1EC-CB1DFA768D5D: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t "\x12\x07:\xb7\x9b\xed\x90\x18\xf4\xd2k\xc0\xaax03\x17f\x07\xf2\xf5\x89O'}, rssi=-84)
+
+770F8A45-EBA8-7D2E-5F50-EA803B7BA71E: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x07\x12\x1f\x16\x1f:\xa8H'}, tx_power=12, rssi=-58)
+
+798FCF7F-9E4E-819D-0E5A-ED2E2BCB358C: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x060\x1e\xe6\x1b\xa7\xb1\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00'}, tx_power=12, rssi=-87)
+
+7D9322EC-53DF-5EEE-52C7-9C9AE5FD3BAC: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00H\xee\xef\xf2\x12\xe3\xce\xe6\x94\xf5\xe3\x9dV\x10\x06A\x1d\r\x07\x11h'}, rssi=-81)
+
+82F98270-74A9-B1CA-AB6C-4326B29E1C06: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x16\xc0\x00\x00\x02\x1bX\x16\x08\x00\xdedw\xccq\x1b\x8c'}, rssi=-71)
+
+838FFB32-8F6E-1A4F-8BE8-BA44CC9AA357: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x07/\x1fU\x86\x98vx\x01\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'}, tx_power=12, rssi=-88)
+
+83F3DA91-3ABA-9256-FAD3-46AC6F1675CA: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06>\x1eI\x9b\xb6R'}, tx_power=0, rssi=-75)
+
+87DA987F-90AF-B697-4EAB-48EDAACF74BD: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06K\x1d\xf0\xa0\xe5h'}, tx_power=12, rssi=-70)
+
+887CF592-BC23-4E13-6292-06E74B8F7B8C: LE_WH-1000XM6
+---------------------------------------------------
+AdvertisementData(service_data={'0000fe2c-0000-1000-8000-00805f9b34fb': b'\x100\x00\x00\x00!~t'}, tx_power=-1, rssi=-95)
+
+88DD9D41-5E8C-F79A-3845-BDFB2A11B2C5: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13M\xc0\x00\x00\x02\x1bX\x16\x08\x00\x84\xc8\t\rYG\xf2'}, rssi=-95)
+
+8AEC02AA-9003-CEE7-125C-1BA1D496672E: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x07\x14\x1f\x9f\x1bR\x14H'}, tx_power=12, rssi=-88)
+
+8AFFFA2E-CC30-D029-471C-D6D06F579347: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06H\x1dxI\xa1\x08'}, tx_power=12, rssi=-91)
+
+8C5CF5EB-B10F-249D-23AE-1FC0A4B8572E: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t \x026\x19.()@\xc64\x01\x9c\x94\\\x88{\\S\xdf\x80\x18;\xe2\xd2&'}, rssi=-76)
+
+8CEB00F3-BD4A-C983-4F40-1AEA04E42C30: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x12\x02\x00\x02'}, rssi=-89)
+
+8EF15CAB-49C2-D6A4-2C02-9A0DD160BAC2: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x072\x1f6\xbfS.H'}, tx_power=12, rssi=-81)
+
+9387CBB0-712F-DBDC-D021-47EA4E3A4677: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x05\x12@\xaa\xb7)\x00\x00\x00\x00\x03k\xcd\x8b\xc7;\x8c\xb4\x82\x00'}, rssi=-89)
+
+93DD6056-43B9-7ABA-3D8F-66428690E5DC: None
+------------------------------------------
+AdvertisementData(service_data={'0000fe2c-0000-1000-8000-00805f9b34fb': b'\x00P!&!\x00\x00\x11\x98\x14^'}, service_uuids=['0000fd82-0000-1000-8000-00805f9b34fb'], tx_power=-12, rssi=-82)
+
+940C9380-C8BA-DE9D-FAA7-2EAAE61CA582: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x1b\xc0\x00\x00\x02\x1bX\n\x04\x12\x9c\x040'}, rssi=-77)
+
+9708E6E2-CE8D-309E-36C8-32C91C605E29: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13]\xc0\x00\x00\x02\x1bX\x16\x08\x00Q\xa5_\xeah\xfb\xbb'}, rssi=-98)
+
+97F6E31C-9B9D-F341-9EFB-D1CF64305770: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\x0f "a\xc4^\xf8\xcbe\x03\x04\xf0X\xfd^\xcb\xa0Dw\x08\x08\x0fT\xee\x98\xa5'}, rssi=-51)
+
+984078EB-4AA3-C0E3-0C79-E89BB9A64A9C: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00\nF\x01\xd8\xfc\x8a-\x14:\xf5\xfe\x06\xbd\x10\x06H\x1d\x19\xcdY8'}, rssi=-70)
+
+98D73388-B92A-B4AC-8FD4-3BAA473844F4: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x00G\xd5\x99\xf7c\xd5-'}, rssi=-91)
+
+99CA3278-ED4E-67D5-6707-EA5DE48C1316: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0f\t\xa03\x82\xa5\xd8\x04\xce\xef\x98\x10\x02\x04\x0c'}, tx_power=12, rssi=-86)
+
+9B22BD91-0ECF-8BE1-3437-63C0B0E47280: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\x0f "O\xee\x84I\xf0."\x12\x92\x82.\x9dO\x15\xd8\xca\x9f&\\Y\x93\x1c\xdb'}, rssi=-72)
+
+9D608FB4-9FEA-2F92-57A5-13973CC0F700: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x076\x1f~\tO\xb9H'}, tx_power=0, rssi=-78)
+
+9DB5D156-4A6A-2F30-3C6E-7DF617147D24: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06\x08\x19F\x89\x17\x18'}, tx_power=6, rssi=-71)
+
+9E14E4F8-C6B1-3A70-4A6F-A2AB6FD1A1C3: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08\xe6\xb2Q\xde\x0f\xfe1\xf1V\xcb\xd8yS\x10\x06C\x1d\xb3_0X'}, rssi=-86)
+
+9FED8C65-C435-4C8E-64A0-7DC392CC78E8: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x02\x01\x00'}, tx_power=0, rssi=-69)
+
+A28C002B-3F7D-ACF9-219F-4745B5F0F408: LE-Min’s Beats Studio Pro
+---------------------------------------------------------------
+AdvertisementData(local_name='LE-Min’s Beats Studio Pro', manufacturer_data={18347: b'\xb1\xf5jT\t\xe1'}, service_uuids=['5052494d-2dab-0341-6972-6f6861424c45'], rssi=-83)
+
+A3793B63-559D-C243-CE98-CED8AEE60B12: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00^<&u\xfa"\xa4\x8e{#\xfd\xb3\xf5\x10\x06@\x1d\x95[\x0f\x08'}, rssi=-57)
+
+A632C2F0-7983-C8F0-F0DC-1DFA3713A7B1: Jake’s iPad
+-------------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06\t\x1d\xae\xa3Ph'}, tx_power=12, rssi=-46)
+
+A64AD44B-0837-4105-6755-DDEC7A32BEFF: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06K\x1954k\x08'}, tx_power=12, rssi=-74)
+
+A8026D13-4432-6C37-1A6E-31B3F3CED4BD: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\xbc\xac\x1d-\xbb\x1bX\n\x04\x12I\x89\xdf'}, rssi=-71)
+
+A9683C8F-2F30-798E-2D54-A7E0AB655AAA: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00\x8c\x90\xec\x9f\xd7S&\x18\x9f\x94j\xe8\x8b\x10\x06N\x1d\x02d\x8ch'}, rssi=-76)
+
+AE23FF5B-0ADF-CD31-38D6-921A33CED3C8: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x072\x1f\xc9\xe3\x87S8'}, tx_power=8, rssi=-93)
+
+AEDAC1E1-B542-64BB-A1C4-35A3C74F8BB8: None
+------------------------------------------
+AdvertisementData(service_data={'0000fe2c-0000-1000-8000-00805f9b34fb': b'\x00\x00'}, tx_power=-3, rssi=-75)
+
+B1E7DDEB-5CAA-718D-584E-942DD9E6B7C0: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08q=\x19\xa4J\xefwqC@?\xc3\x90\x10\x06H\x1d\n"\x05('}, rssi=-84)
+
+B21D7D88-E875-8DB9-6B2A-02DF62B0DE82: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x12\x02\x00\x03'}, rssi=-92)
+
+B3C69C54-E7E9-A980-AEC3-0D2534E85400: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\x0f!*\xb4b\xf6\x05\x050PranavPC'}, rssi=-88)
+
+B4F85FD7-5D75-A14C-4AED-AE676845F422: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\xa4\xc0\x00\x00\x02\x1bX\x16\x08\x002\xfc\xf3G\xfa\xa0\xab'}, rssi=-81)
+
+B5760D6F-AD9C-CA19-7ED1-F171643926CD: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x12\x02\x00\x01'}, rssi=-95)
+
+B79F766F-7009-B99F-A86D-BCD3018C7CD5: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05\x0c\x18\x97hQ'}, tx_power=0, rssi=-92)
+
+B9D9AD73-75B4-DE57-482A-9F9C24EAA7F0: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00\x08\r\xb4\xe2q\xcd\xf6\xdc\x03\x15xDo\x10\x06D\x1d\xeb\xd4\xf9\x08'}, rssi=-94)
+
+BA85D935-3F64-05AE-5D08-CF2AC5170312: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06A\x1d\xd9\xce\\h'}, tx_power=12, rssi=-89)
+
+BCFCA076-904B-676E-3475-867D0F25550A: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08\xe4\xb2\x08T/\x04\x8bN\xf1\xd0\x9c>?\x10\x06C\x1d\xb3_0X'}, rssi=-96)
+
+BDAE131F-24A6-A503-99FD-205B67264C99: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x07>\x1f\x04\x9aT\xa3\x08'}, tx_power=12, rssi=-68)
+
+BF274317-2681-0FD6-32BC-B9AA511BD256: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\x0f "\x9aC\n\xf8\xf5\xc9\x83\x1e\xae[\xc6\xf0\xec\x1e\x8f\xca\xca\x89g\xb8\x93\x05\xbf'}, rssi=-91)
+
+BF7784D5-C362-2979-1538-77FC65EBF6D6: LE-Dannys Bose
+----------------------------------------------------
+AdvertisementData(local_name='LE-Dannys Bose', manufacturer_data={14083: b'Q\x10\x16;\xa6\x83\xf1\x02\x87*\x88'}, service_uuids=['0000febe-0000-1000-8000-00805f9b34fb'], tx_power=-10, rssi=-85)
+
+BF8A8C28-3EAB-C14B-69C6-7F9BCEE353CE: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05\x0f\x98\x05\xb7\xa7'}, tx_power=0, rssi=-98)
+
+C1C3B8D5-5322-7C00-622F-00327306A53C: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06F\x1d\x82{}h'}, tx_power=17, rssi=-74)
+
+C56162A4-B8C2-98A4-BE8C-B873D6EE2502: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x053\x1c\xd0?X'}, tx_power=0, rssi=-71)
+
+C5A4125C-18B4-9054-44B3-1DD36D84D05D: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x062\x1e\xc9cM\xe8'}, tx_power=12, rssi=-94)
+
+C5D9599E-ABAF-769F-C53B-9A68F33CA568: 23272
+-------------------------------------------
+AdvertisementData(local_name='23272', manufacturer_data={3275: b'\x01\x02\xb1rD^:\xed\xb0<'}, service_data={'0000fe2c-0000-1000-8000-00805f9b34fb': b'\x00\x00'}, tx_power=-11, rssi=-92)
+
+C636A81D-2988-A96E-8DDD-4CDB02BE1B67: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05L\x1c\x9b^\xe1'}, tx_power=0, rssi=-94)
+
+C69A313C-E902-AE19-3AC5-9410BAE7C31D: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x007\xe1\xb366\x95\xbb'}, rssi=-68)
+
+C88A4A75-3EAB-04EA-6534-0B08C4050C60: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00\nF\x01\xd8\xfc\x8a-\x14:\xf5\xfe\x06\xbd\x10\x06H\x1d\x19\xcdY8'}, rssi=-77)
+
+CA1A1B1C-F866-9E75-B066-5279C8DF9FF8: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13o\xc0\x00\x00\x02\x1bX\x16\x08\x00}\xd5\xb8*"\xc5\x0f'}, rssi=-77)
+
+CCD754C4-1E6D-FC52-6401-FE931E37D8A5: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00^<&u\xfa"\xa4\x8e{#\xfd\xb3\xf5\x10\x06@\x1d\x95[\x0f\x08'}, rssi=-57)
+
+CE9392CE-9FB9-B0B0-2992-9F2B6AFEE44B: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x055\x18L4\x89'}, tx_power=8, rssi=-79)
+
+CEC775AB-E2CE-0FB0-3018-DC7D54E7173B: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x07#\x1fP\xdc0_X'}, tx_power=12, rssi=-89)
+
+D1AA5746-816F-1F46-11DD-446A1E568735: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x00\xb3\x8c\x9f\x1a\x9bf6'}, rssi=-87)
+
+D3B7ADD3-069F-D9A7-B91E-5C298A26F24A: iPhone (4)
+------------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06\x00\x1d\x19~\xab('}, tx_power=12, rssi=-46)
+
+D43C168B-8331-A9E3-52C1-9EECD8701FC2: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06:\x1d\xc0\xfa[('}, tx_power=12, rssi=-77)
+
+D7485DAF-E909-9777-8A7F-A6214A02C597: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t "\xcfJ\x86C\xef\r\x1e\x00\x01q\xae\x12\xfc\x8c\xd7\xbdY\x92\xe3\x1fK\xe2\xc1'}, rssi=-88)
+
+D76EA59D-1B2D-9D0C-4DF6-F4D9136E11D2: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08\xe2\xd9#+ \x02"=\xc8\x9b\xe7\xae\xae\x10\x06L\x1d\xdc\xddW('}, rssi=-90)
+
+D98F70F6-10FB-857B-0D28-F22D1AA1DD83: LE-Acrux
+----------------------------------------------
+AdvertisementData(local_name='LE-Acrux', service_data={'0000fe26-0000-1000-8000-00805f9b34fb': b's<X'}, service_uuids=['0000180f-0000-1000-8000-00805f9b34fb', '00001803-0000-1000-8000-00805f9b34fb', '00001804-0000-1000-8000-00805f9b34fb', '00001802-0000-1000-8000-00805f9b34fb'], rssi=-88)
+
+DC2AE0D4-39E1-5974-CA89-D3B397081BA5: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x08\x85gn2C*\x12!\x83.\xbcza\x10\x06N\x1dM?\rx'}, rssi=-77)
+
+DF6345F7-C7CE-EB76-42A0-493991E60675: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x04\xc0\x00\x00\x02\x1bX\x16\x08\x00\xcd\xc5\x92o\xccYZ'}, rssi=-84)
+
+E01A1E18-9F78-403F-D8EE-3AA7681C5714: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x070\x1fW\xb0S\x1c8'}, tx_power=8, rssi=-81)
+
+E328A63B-30E7-6354-0F73-BEFA613DAFB5: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13X\xc0\x00\x00\x02\x1bX\x16\x08\x00\xc1Fd\xd1M\xe7\x86'}, rssi=-76)
+
+E64DBED3-7864-3CC2-EDF6-C56159253EBB: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06O\x1d\x01;\xb1(\x0f\x02\x00\x00'}, tx_power=6, rssi=-82)
+
+E66C0EAF-749A-4179-971E-197842ADF582: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06K\x1954k\x08'}, tx_power=12, rssi=-83)
+
+E85820C3-B5F0-C65C-66C2-9226810B25F5: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x074\x1f~\xbe\x1a\xb48'}, tx_power=0, rssi=-74)
+
+E9265A99-89A5-C9D9-BBCE-EA409C7D524D: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x00\xa5/\x88\x9f\x86_\xf1'}, rssi=-95)
+
+E9D0937B-FAF9-CEFF-1D18-AAC599A41837: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x0c\x0e\x00Nf\x12\xe8\xe3~x\x0b),\xee\x08\xeb\x10\x06J\x1dh\xce\x01\x08'}, rssi=-78)
+
+EB23C1C7-CD5F-AD2A-92B3-8F76AA157B54: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05L\x1c\x9b^\xe1'}, rssi=-97)
+
+F3B2C941-2565-B418-1A3F-A251098C87E6: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x16\x08\x001\xcem\xfc\r\x88\xdf'}, rssi=-69)
+
+F68CF3BC-108E-9DC4-1147-3FB93B7B984E: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x12\x02\x00\x02'}, rssi=-96)
+
+F6C57C0F-0BBC-DC3C-E8D9-3E76A656F73B: None
+------------------------------------------
+AdvertisementData(manufacturer_data={6: b'\x01\t "\xbd8\x06BL\xd1\x8a\xe9\xdc\xe4\xad\xf41\xfb}KA\xe1\x8b($\xff\xfe'}, rssi=-45)
+
+F6C5CAA9-49FA-07D7-2C34-1123376EB125: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x12\x02\x00\x02'}, rssi=-90)
+
+F8555FA4-E6A5-D4FC-A3A8-DB5E5D581B1A: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x12\x02\x00\x00'}, rssi=-84)
+
+FC684DDC-BE0E-E7CE-3313-7652458A156A: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x06K\x1d\xf0\xa0\xe5h'}, tx_power=12, rssi=-78)
+
+FDE07AB2-7F03-EB85-B256-2B898E2E7CE1: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x079\x1f\x1a\xe4\xeaW\x08'}, tx_power=8, rssi=-67)
+
+FE2065E7-75B8-C847-C5DA-0ABF1606ED07: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x071\x1f\x00\r=\xb7\x08'}, tx_power=8, rssi=-76)
+
+FE36CAB0-C0EC-837E-F7ED-AAB9A6232D22: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\x10\x05\x01\x18[\xdc\x14'}, tx_power=24, rssi=-84)
+
+FEB8A3FA-487F-982A-376B-9A45E20FA31A: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x14\xc0\x00\x00\x02\x1bX\x16\x08\x00\xc8\x94BsU\xcd`'}, rssi=-70)
+
+FF61C9E1-E9F2-AAEF-1B81-78B323EFDF04: None
+------------------------------------------
+AdvertisementData(manufacturer_data={76: b'\t\x08\x13\x1e\xc0\x00\x00\x02\x1bX\x16\x08\x00\xcd\x8f\xd2Oi/\xc3'}, rssi=-87)
+(venv) jakehopkins@Jakes-Macbook synth-hacks % 
