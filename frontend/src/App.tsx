@@ -331,9 +331,10 @@ python server.py`
   )
 }
 
-function Chat({ nickname }: { nickname: string }) {
+function Chat({ nickname, onSignOut }: { nickname: string; onSignOut: () => void }) {
   const [peers, setPeers] = useState<Peer[]>([])
   const [bleDevices, setBleDevices] = useState<BLEDevice[]>([])
+  const [showNoPeersHelp, setShowNoPeersHelp] = useState(false)
   const [rooms, setRooms] = useState<string[]>(['#general'])
   const [currentRoom, setCurrentRoom] = useState<string>('#general')
   const [messagesByRoom, setMessagesByRoom] = useState<Record<string, Message[]>>({})
@@ -377,6 +378,17 @@ function Chat({ nickname }: { nickname: string }) {
     }
     return () => ws.close()
   }, [])
+
+  // Show troubleshooting after 10s with no peers (when in p2p mode)
+  useEffect(() => {
+    if (mode !== 'p2p') return
+    if (peers.length > 0) {
+      setShowNoPeersHelp(false)
+      return
+    }
+    const t = setTimeout(() => setShowNoPeersHelp(true), 10000)
+    return () => clearTimeout(t)
+  }, [mode, peers.length])
 
   // Request history when switching rooms
   useEffect(() => {
@@ -456,8 +468,20 @@ function Chat({ nickname }: { nickname: string }) {
               <p>Peer discovery is macOS only. Windows/Linux soon.</p>
             </div>
           )}
-          {mode === 'p2p' && peers.length === 0 && (
+          {mode === 'p2p' && peers.length === 0 && !showNoPeersHelp && (
             <p className="empty"><small>Waiting for peers… have a friend run <code>python server.py</code> on the same Wi-Fi.</small></p>
+          )}
+          {mode === 'p2p' && peers.length === 0 && showNoPeersHelp && (
+            <div className="peer-banner help">
+              <strong>No peers after 10s</strong>
+              <p>Most common cause: macOS denied Local Network permission.</p>
+              <ol>
+                <li>System Settings → Privacy &amp; Security → <b>Local Network</b></li>
+                <li>Enable Terminal (or whatever runs Python)</li>
+                <li>Restart server.py</li>
+              </ol>
+              <p>Also check: same Wi-Fi, friend's server actually running, friend has latest code.</p>
+            </div>
           )}
           <ul>
             {peers.map((p) => (
@@ -500,7 +524,10 @@ function Chat({ nickname }: { nickname: string }) {
       <main className="chat">
         <header>
           <h2>{currentRoom}</h2>
-          <span className="me">{nickname}</span>
+          <div className="header-right">
+            <span className="me">{nickname}</span>
+            <button className="signout-btn" onClick={onSignOut} title="Sign out">↻</button>
+          </div>
         </header>
         <div className="thread" ref={threadRef}>
           {messages.length === 0 && <p className="empty">No messages in {currentRoom} yet. Say hi.</p>}
@@ -527,10 +554,21 @@ function Chat({ nickname }: { nickname: string }) {
   )
 }
 
+const NICK_KEY = 'mesh.nickname'
+
 function App() {
-  const [nickname, setNickname] = useState<string | null>(null)
-  if (!nickname) return <Landing onEnter={setNickname} />
-  return <Chat nickname={nickname} />
+  const [nickname, setNickname] = useState<string | null>(() => {
+    try { return localStorage.getItem(NICK_KEY) } catch { return null }
+  })
+  const setAndPersist = (n: string | null) => {
+    setNickname(n)
+    try {
+      if (n) localStorage.setItem(NICK_KEY, n)
+      else localStorage.removeItem(NICK_KEY)
+    } catch {}
+  }
+  if (!nickname) return <Landing onEnter={setAndPersist} />
+  return <Chat nickname={nickname} onSignOut={() => setAndPersist(null)} />
 }
 
 export default App

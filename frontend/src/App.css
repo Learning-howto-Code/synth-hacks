@@ -857,6 +857,38 @@
   font-size: 12px;
 }
 
+.peer-banner.help ol {
+  margin: 8px 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.peer-banner.help b { color: var(--accent); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.signout-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.signout-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .peer-banner strong {
   display: block;
   margin-bottom: 4px;

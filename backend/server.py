@@ -401,6 +401,15 @@ async def lifespan(_: FastAPI):
         _bridge.start()
         t = threading.Thread(target=_run_runloop, daemon=True)
         t.start()
+        print()
+        print("=" * 64)
+        print("  [mesh] If peers don't appear within 10 seconds:")
+        print("  1) System Settings → Privacy & Security → Local Network")
+        print("     -> Enable Terminal (or whatever app is running Python)")
+        print("  2) Both Macs must be on the SAME Wi-Fi network")
+        print("  3) Restart the server after granting permission")
+        print("=" * 64)
+        print()
     else:
         print(f"[mesh] running on {sys.platform} in local-only mode (no peer discovery)")
         print(f"[mesh] display name: {args.name}")
@@ -460,6 +469,36 @@ async def get_platform():
 @app.get("/version")
 async def get_version():
     return get_version_info()
+
+
+@app.get("/diag")
+async def get_diag():
+    bridge_ok = _bridge is not None
+    connected_count = 0
+    own_name = None
+    if bridge_ok and MPC_AVAILABLE:
+        try:
+            connected_count = len(list(_bridge._session.connectedPeers() or []))
+            own_name = _bridge._peer_id.displayName()
+        except Exception:
+            pass
+    return {
+        "platform": sys.platform,
+        "mpc_available": MPC_AVAILABLE,
+        "ble_available": BLE_AVAILABLE,
+        "mpc_bridge_started": bridge_ok,
+        "mpc_own_name": own_name,
+        "mpc_service_type": SERVICE_TYPE,
+        "mpc_connected_peer_count": connected_count,
+        "mpc_peer_names": list(app_state.peers.keys()),
+        "ble_device_count": len(app_state.ble_devices),
+        "ws_client_count": len(app_state.sockets),
+        "hint": (
+            "If mpc_connected_peer_count is 0 and your friend's server is also running, "
+            "check System Settings → Privacy & Security → Local Network → make sure "
+            "Terminal (or Python) is enabled. MPC silently fails when denied."
+        ),
+    }
 
 
 @app.post("/update")
