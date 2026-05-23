@@ -15,61 +15,153 @@ type Message = {
   ts: number
 }
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  const onClick = async () => {
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+  return (
+    <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={onClick} type="button">
+      {copied ? 'Copied!' : 'Copy'}
+    </button>
+  )
+}
+
+function OneLinerCard() {
+  const cmd = 'curl -sSL https://raw.githubusercontent.com/Learning-howto-Code/synth-hacks/main/install.sh | bash'
+  return (
+    <div className="oneliner">
+      <div className="oneliner-label">One-line install</div>
+      <div className="oneliner-row">
+        <code className="oneliner-cmd">{cmd}</code>
+        <CopyButton text={cmd} />
+      </div>
+    </div>
+  )
+}
+
+function CodeBlock({ title, lines, copyText }: { title: string; lines: React.ReactNode; copyText: string }) {
+  return (
+    <div className="code-card">
+      <div className="code-head">
+        <span className="dot red" />
+        <span className="dot yellow" />
+        <span className="dot green" />
+        <span className="title">{title}</span>
+        <CopyButton text={copyText} />
+      </div>
+      <pre className="code-body">{lines}</pre>
+    </div>
+  )
+}
+
 function Landing({ onEnter }: { onEnter: (nickname: string) => void }) {
   const [name, setName] = useState('')
+  const installRef = useRef<HTMLDivElement | null>(null)
   const ctaRef = useRef<HTMLDivElement | null>(null)
   const submit = () => {
     const trimmed = name.trim()
     if (trimmed) onEnter(trimmed)
   }
-  const scrollToCta = () => ctaRef.current?.scrollIntoView({ behavior: 'smooth' })
+  const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) =>
+    ref.current?.scrollIntoView({ behavior: 'smooth' })
+
+  const manualInstall = `git clone https://github.com/Learning-howto-Code/synth-hacks
+cd synth-hacks/backend
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python server.py`
 
   return (
     <div className="landing">
       <nav className="nav">
         <span className="logo">⛓ mesh</span>
         <div className="nav-links">
+          <a href="#install" onClick={(e) => { e.preventDefault(); scrollTo(installRef) }}>Install</a>
           <a href="#features">Features</a>
           <a href="#how">How it works</a>
-          <a href="#download">Download</a>
-          <a href="#start" onClick={(e) => { e.preventDefault(); scrollToCta() }}>Get started</a>
+          <button className="nav-cta" onClick={() => scrollTo(installRef)}>Get started →</button>
         </div>
       </nav>
 
       <section className="hero">
         <div className="hero-content">
-          <span className="badge">Peer-to-peer · Offline-capable</span>
+          <span className="badge">⚡ Peer-to-peer · Offline-capable · Encrypted</span>
           <h1>
-            Chat across <span className="grad">any Mac</span><br />
-            with zero infrastructure.
+            Chat anywhere.<br />
+            <span className="grad">Even off-grid.</span>
           </h1>
           <p className="lede">
-            Mesh uses Apple MultipeerConnectivity to discover and connect peers
-            over Wi-Fi and Bluetooth — no router, no server, no internet required.
+            Mesh is a tiny, open-source chat that runs entirely on your machines.
+            No servers. No accounts. No internet required.
           </p>
           <div className="hero-actions">
-            <button className="primary" onClick={scrollToCta}>Enter the mesh →</button>
-            <a className="secondary" href="#how">See how it works</a>
+            <button className="primary big" onClick={() => scrollTo(installRef)}>
+              Install in 30 seconds →
+            </button>
+            <a className="secondary" href="https://github.com/Learning-howto-Code/synth-hacks" target="_blank" rel="noreferrer">
+              View on GitHub
+            </a>
+          </div>
+          <div className="trust">
+            <span>★ MIT licensed</span>
+            <span>•</span>
+            <span>macOS · Linux · Windows</span>
+            <span>•</span>
+            <span>Zero dependencies on cloud</span>
           </div>
         </div>
 
-        <div className="code-card">
-          <div className="code-head">
-            <span className="dot red" />
-            <span className="dot yellow" />
-            <span className="dot green" />
-            <span className="title">mpc_chat.py</span>
-          </div>
-          <pre className="code-body">
-<span className="c-comment"># Run on two Macs on the same Wi-Fi network</span>{'\n'}
-<span className="c-prompt">$</span> python mpc_chat.py <span className="c-flag">--name</span> <span className="c-str">Jake</span>{'\n'}
-<span className="c-prompt">$</span> python mpc_chat.py <span className="c-flag">--name</span> <span className="c-str">Shree</span>{'\n'}{'\n'}
-<span className="c-log">[mpc] advertising + browsing as 'Jake' on 'synth-chat'</span>{'\n'}
-<span className="c-log">[browser] found Shree {'->'} invite</span>{'\n'}
-<span className="c-log">[session] Shree {'->'} Connected</span>{'\n'}
-<span className="c-prompt">{'>'}</span> hello mesh{'\n'}
-<span className="c-recv">[Shree] hey jake, signal locked</span>
-          </pre>
+        <div className="hero-visual">
+          <CodeBlock
+            title="mesh in action"
+            copyText="python server.py"
+            lines={
+              <>
+                <span className="c-comment"># Two friends, two laptops, one mesh</span>{'\n'}
+                <span className="c-prompt">jake $</span> python server.py{'\n'}
+                <span className="c-log">Uvicorn running on http://0.0.0.0:8000</span>{'\n'}
+                <span className="c-log">[mesh] advertising as 'jake'</span>{'\n'}{'\n'}
+                <span className="c-prompt">shree $</span> python server.py{'\n'}
+                <span className="c-log">[mesh] found jake → connected</span>{'\n'}{'\n'}
+                <span className="c-prompt">{'>'}</span> hey, you up?{'\n'}
+                <span className="c-recv">[shree] yeah, what's up</span>
+              </>
+            }
+          />
+        </div>
+      </section>
+
+      <section id="install" className="section install-hero" ref={installRef}>
+        <div className="install-header">
+          <span className="kicker">Get started</span>
+          <h2>Install in 30 seconds.</h2>
+          <p className="lede">One command. macOS, Linux, or Windows.</p>
+        </div>
+
+        <OneLinerCard />
+
+        <div className="install-divider"><span>or install manually</span></div>
+
+        <CodeBlock
+          title="manual install"
+          copyText={manualInstall}
+          lines={
+            <>
+              <span className="c-comment"># Clone, install, run</span>{'\n'}
+              <span className="c-prompt">$</span> git clone https://github.com/Learning-howto-Code/synth-hacks{'\n'}
+              <span className="c-prompt">$</span> cd synth-hacks/backend{'\n'}
+              <span className="c-prompt">$</span> python3 -m venv venv <span className="c-flag">&amp;&amp;</span> source venv/bin/activate{'\n'}
+              <span className="c-prompt">$</span> pip install <span className="c-flag">-r</span> requirements.txt{'\n'}
+              <span className="c-prompt">$</span> python server.py
+            </>
+          }
+        />
+
+        <div className="install-cta">
+          <p>Server running? <button className="link-btn" onClick={() => scrollTo(ctaRef)}>Open the chat →</button></p>
         </div>
       </section>
 
@@ -79,22 +171,22 @@ function Landing({ onEnter }: { onEnter: (nickname: string) => void }) {
           <div className="card">
             <div className="icon">📡</div>
             <h3>No internet needed</h3>
-            <p>Peers discover each other directly over Bluetooth and local Wi-Fi using Apple's MultipeerConnectivity stack.</p>
+            <p>Peers discover each other directly over local network and Bluetooth.</p>
           </div>
           <div className="card">
             <div className="icon">🔐</div>
             <h3>End-to-end encrypted</h3>
-            <p>Every session uses MCEncryptionRequired. Certificates are validated; payloads never travel in plaintext.</p>
+            <p>Every session uses required encryption. Payloads never travel in plaintext.</p>
           </div>
           <div className="card">
             <div className="icon">⚡</div>
             <h3>Zero config</h3>
-            <p>Auto-advertise, auto-browse, auto-invite, auto-accept. Run it on two Macs and they find each other.</p>
+            <p>Auto-advertise, auto-browse, auto-invite, auto-accept. Just run it.</p>
           </div>
           <div className="card">
             <div className="icon">🪶</div>
             <h3>Native &amp; tiny</h3>
-            <p>Pure pyobjc + Cocoa runloop. No daemons, no brokers, no third-party services.</p>
+            <p>One Python file. No daemons, no brokers, no third-party services.</p>
           </div>
         </div>
       </section>
@@ -105,94 +197,44 @@ function Landing({ onEnter }: { onEnter: (nickname: string) => void }) {
           <li>
             <span className="step-num">1</span>
             <div>
-              <h3>Advertise &amp; browse</h3>
-              <p>Each peer runs <code>MCNearbyServiceAdvertiser</code> and <code>MCNearbyServiceBrowser</code> on the same <code>serviceType</code>.</p>
+              <h3>Install &amp; run</h3>
+              <p>Run the one-liner above. The local server starts on port 8000.</p>
             </div>
           </li>
           <li>
             <span className="step-num">2</span>
             <div>
-              <h3>Auto-invite</h3>
-              <p>When a peer is discovered, an invitation fires immediately via <code>invitePeer:toSession:withContext:timeout:</code>.</p>
+              <h3>Open the web app</h3>
+              <p>Visit <code>mesh.app</code>, pick a nickname, hit Enter. The web app connects to your local server.</p>
             </div>
           </li>
           <li>
             <span className="step-num">3</span>
             <div>
-              <h3>Auto-accept &amp; encrypt</h3>
-              <p>Advertiser delegate accepts the invitation; the session negotiates encryption and reaches <code>MCSessionStateConnected</code>.</p>
-            </div>
-          </li>
-          <li>
-            <span className="step-num">4</span>
-            <div>
-              <h3>Send UTF-8</h3>
-              <p>Messages flow as <code>NSData</code> via <code>sendData:toPeers:withMode:error:</code>. Bidirectional, low latency.</p>
+              <h3>Share &amp; chat</h3>
+              <p>Tell a friend to do the same. Your machines find each other; messages flow peer-to-peer.</p>
             </div>
           </li>
         </ol>
       </section>
 
-      <section id="download" className="section">
-        <h2>Download &amp; run locally</h2>
-        <p className="lede" style={{ marginBottom: 40 }}>
-          The web app connects to a tiny Python backend running on your own machine.
-          Your messages never touch our servers.
-        </p>
-        <div className="install">
-          <div className="code-card" style={{ transform: 'none' }}>
-            <div className="code-head">
-              <span className="dot red" />
-              <span className="dot yellow" />
-              <span className="dot green" />
-              <span className="title">install.sh</span>
-            </div>
-            <pre className="code-body">
-<span className="c-comment"># 1. Clone the repo</span>{'\n'}
-<span className="c-prompt">$</span> git clone https://github.com/Learning-howto-Code/synth-hacks{'\n'}
-<span className="c-prompt">$</span> cd synth-hacks/backend{'\n'}{'\n'}
-<span className="c-comment"># 2. Install deps</span>{'\n'}
-<span className="c-prompt">$</span> python3 -m venv venv <span className="c-flag">&amp;&amp;</span> source venv/bin/activate{'\n'}
-<span className="c-prompt">$</span> pip install <span className="c-flag">-r</span> requirements.txt{'\n'}{'\n'}
-<span className="c-comment"># 3. Start the local server</span>{'\n'}
-<span className="c-prompt">$</span> python server.py{'\n'}
-<span className="c-log">Uvicorn running on http://0.0.0.0:8000</span>
-            </pre>
-          </div>
-          <div className="install-notes">
-            <h3>Then come back here</h3>
-            <p>Once the server prints <code>Uvicorn running</code>, scroll up, enter a nickname, and the web app will connect automatically.</p>
-            <h3>Requirements</h3>
-            <ul>
-              <li>Python 3.10+</li>
-              <li>macOS, Linux, or Windows</li>
-              <li>Optional: Bluetooth for peer discovery (macOS only)</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
       <section id="start" className="section cta" ref={ctaRef}>
-        <h2>Pick a nickname. Step in.</h2>
-        <p className="lede">Other peers on the network will see this name.</p>
-        <form
-          className="cta-form"
-          onSubmit={(e) => { e.preventDefault(); submit() }}
-        >
+        <h2>Already installed?</h2>
+        <p className="lede">Pick a nickname to join the mesh.</p>
+        <form className="cta-form" onSubmit={(e) => { e.preventDefault(); submit() }}>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. jake"
             maxLength={24}
-            autoFocus
           />
           <button type="submit" disabled={!name.trim()}>Enter mesh →</button>
         </form>
-        <p className="hint">First run will prompt macOS for Local Network permission. Allow it.</p>
+        <p className="hint">Need to install first? <button className="link-btn" onClick={() => scrollTo(installRef)}>Jump to install</button></p>
       </section>
 
       <footer className="foot">
-        <span>mesh · built on Apple MultipeerConnectivity</span>
+        <span>mesh · open source on <a href="https://github.com/Learning-howto-Code/synth-hacks" target="_blank" rel="noreferrer">GitHub</a></span>
       </footer>
     </div>
   )
@@ -271,14 +313,11 @@ function Chat({ nickname }: { nickname: string }) {
             </div>
           ))}
         </div>
-        <form
-          className="composer"
-          onSubmit={(e) => { e.preventDefault(); send() }}
-        >
+        <form className="composer" onSubmit={(e) => { e.preventDefault(); send() }}>
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder={connected ? 'Type message…' : 'Connecting…'}
+            placeholder={connected ? 'Type message…' : 'Connecting to localhost:8000… (is the server running?)'}
             disabled={!connected}
           />
           <button type="submit" disabled={!connected || !draft.trim()}>
