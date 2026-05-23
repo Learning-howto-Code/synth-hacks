@@ -297,21 +297,28 @@ python server.py`
             <span className="step-num">1</span>
             <div>
               <h3>Install &amp; run</h3>
-              <p>Run the one-liner above. The local server starts on port 8000.</p>
+              <p>Run the one-liner above. A tiny local server starts and begins advertising over Bluetooth + peer-to-peer Wi-Fi.</p>
             </div>
           </li>
           <li>
             <span className="step-num">2</span>
             <div>
-              <h3>Open the web app</h3>
-              <p>Visit <code>mesh.app</code>, pick a nickname, hit Enter. The web app connects to your local server.</p>
+              <h3>Find each other automatically</h3>
+              <p>No router, no internet, no cell tower. Devices discover each other via Apple MultipeerConnectivity over Bluetooth and direct Wi-Fi.</p>
             </div>
           </li>
           <li>
             <span className="step-num">3</span>
             <div>
-              <h3>Share &amp; chat</h3>
-              <p>Tell a friend to do the same. Your machines find each other; messages flow peer-to-peer.</p>
+              <h3>Hop through neighbors</h3>
+              <p>Friends out of direct range? Your message travels through devices in between. Up to 6 hops, gossip-relayed, encrypted per hop.</p>
+            </div>
+          </li>
+          <li>
+            <span className="step-num">4</span>
+            <div>
+              <h3>Want pure Bluetooth?</h3>
+              <p>Turn Wi-Fi <em>off</em>. Mesh switches to Bluetooth-only — works in airplane mode (Bluetooth on), at festivals, on planes, anywhere.</p>
             </div>
           </li>
         </ol>

@@ -437,8 +437,9 @@ async def lifespan(_: FastAPI):
     if MPC_AVAILABLE:
         _bridge = MPCBridge.alloc().initWithDisplayName_(args.name)
         _bridge.start()
-        t = threading.Thread(target=_run_runloop, daemon=True)
-        t.start()
+        # NOTE: we do NOT spawn a background NSRunLoop thread anymore.
+        # MPC delegate callbacks dispatch on the main thread's runloop,
+        # which must be pumped by the launcher (see __main__ block).
         print()
         print("=" * 64)
         print("  [mesh] If peers don't appear within 10 seconds:")
@@ -639,6 +640,42 @@ else:
         }
 
 
-if __name__ == "__main__":
+def _serve(host: str = "0.0.0.0", port: int = 8000) -> None:
+    """Launch uvicorn + (on macOS) pump the main-thread Cocoa runloop so MPC works."""
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    if IS_MACOS and MPC_AVAILABLE:
+        try:
+            from PyObjCTools import AppHelper
+        except ImportError:
+            AppHelper = None
+
+        config = uvicorn.Config(app, host=host, port=port, log_level="info")
+        server = uvicorn.Server(config)
+
+        def _run_server():
+            try:
+                asyncio.run(server.serve())
+            except Exception as e:
+                print(f"[uvicorn] crashed: {e}")
+                os._exit(1)
+
+        threading.Thread(target=_run_server, daemon=True).start()
+
+        # Block main thread on Cocoa runloop so MCNearbyServiceBrowser/Advertiser
+        # delegate callbacks actually fire.
+        if AppHelper:
+            AppHelper.runConsoleEventLoop(installInterrupt=True)
+        else:
+            # Fallback: hand-rolled main-thread runloop
+            try:
+                while True:
+                    NSRunLoop.currentRunLoop().runUntilDate_(NSDate.dateWithTimeIntervalSinceNow_(1.0))
+            except KeyboardInterrupt:
+                pass
+    else:
+        uvicorn.run(app, host=host, port=port)
+
+
+if __name__ == "__main__":
+    _serve()
