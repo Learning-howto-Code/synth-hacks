@@ -1,14 +1,19 @@
 import asyncio
-from bleak import BleakServer
+from bless import BlessServer
 
 MESH_SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
+MESH_CHAR_UUID = "12345678-1234-5678-1234-56789abcdef1"
 
 async def advertise():
-    server = BleakServer()
-    await server.start(
-        service_uuids=[MESH_SERVICE_UUID],
-        local_name="shree-macbook"
+    server = BlessServer(name="shree-macbook")
+    await server.add_new_service(MESH_SERVICE_UUID)
+    await server.add_new_characteristic(
+        MESH_SERVICE_UUID,
+        MESH_CHAR_UUID,
+        properties=0x02 | 0x08,  # read | write
+        value=bytearray(b"hello"),
     )
+    await server.start()
     print("Advertising...")
     await asyncio.Event().wait()
 
