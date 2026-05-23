@@ -44,16 +44,11 @@ pip install --quiet -r "$TARGET_DIR/backend/requirements.txt"
 ok "Dependencies installed"
 
 echo
-bold "Done. Starting server:"
-echo "  cd $TARGET_DIR/backend"
-echo "  source $TARGET_DIR/venv/bin/activate"
-echo "  python server.py"
+bold "Installed at $TARGET_DIR"
 echo
-echo "Then open: https://frontend-gold-five-84.vercel.app"
+bold "Start the server:"
+echo "  cd $TARGET_DIR/backend && source ../venv/bin/activate && python server.py"
 echo
-
-read -r -p "Start the server now? [Y/n] " ans
-case "$ans" in
-  [nN]*) exit 0 ;;
-  *)     cd "$TARGET_DIR/backend" && exec python server.py ;;
-esac
+bold "Then open:"
+echo "  https://frontend-gold-five-84.vercel.app"
+echo

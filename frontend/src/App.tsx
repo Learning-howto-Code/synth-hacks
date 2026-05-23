@@ -29,14 +29,58 @@ function CopyButton({ text }: { text: string }) {
   )
 }
 
+type OS = 'mac' | 'windows' | 'linux'
+
+function detectOS(): OS {
+  const ua = navigator.userAgent.toLowerCase()
+  if (ua.includes('win')) return 'windows'
+  if (ua.includes('mac')) return 'mac'
+  return 'linux'
+}
+
+const INSTALL_CMDS: Record<OS, { label: string; cmd: string }> = {
+  mac: {
+    label: 'macOS',
+    cmd: 'curl -sSL https://raw.githubusercontent.com/Learning-howto-Code/synth-hacks/main/install.sh | bash',
+  },
+  linux: {
+    label: 'Linux',
+    cmd: 'curl -sSL https://raw.githubusercontent.com/Learning-howto-Code/synth-hacks/main/install.sh | bash',
+  },
+  windows: {
+    label: 'Windows',
+    cmd: 'iwr https://raw.githubusercontent.com/Learning-howto-Code/synth-hacks/main/install.ps1 -useb | iex',
+  },
+}
+
 function OneLinerCard() {
-  const cmd = 'curl -sSL https://raw.githubusercontent.com/Learning-howto-Code/synth-hacks/main/install.sh | bash'
+  const [os, setOs] = useState<OS>(() => detectOS())
+  const { cmd } = INSTALL_CMDS[os]
   return (
     <div className="oneliner">
-      <div className="oneliner-label">One-line install</div>
+      <div className="oneliner-head">
+        <div className="oneliner-label">One-line install</div>
+        <div className="os-tabs">
+          {(['mac', 'linux', 'windows'] as OS[]).map((o) => (
+            <button
+              key={o}
+              className={`os-tab ${o === os ? 'active' : ''}`}
+              onClick={() => setOs(o)}
+              type="button"
+            >
+              {INSTALL_CMDS[o].label}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="oneliner-row">
         <code className="oneliner-cmd">{cmd}</code>
         <CopyButton text={cmd} />
+      </div>
+      <div className="oneliner-hint">
+        {os === 'windows'
+          ? 'Run in PowerShell. Requires Python 3.10+ and git.'
+          : 'Run in Terminal. Requires Python 3.10+ and git.'}
       </div>
     </div>
   )
