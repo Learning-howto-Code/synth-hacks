@@ -1,21 +1,25 @@
 """
-FastAPI server for mesh chat.
+FastAPI server for mesh chat with rooms + SQLite persistence.
 
-- On macOS, uses Apple MultipeerConnectivity for real peer-to-peer discovery + delivery.
-- On other platforms, runs in local-only mode (no peer discovery yet).
-- The browser UI always connects via the WebSocket on port 8000.
-
-Run:
-    python server.py [--name MyName]
+- On macOS, uses Apple MultipeerConnectivity for peer discovery + delivery.
+- On other platforms, runs in local-only mode.
+- Messages persisted to mesh.db (SQLite, stdlib). Survive restarts.
+- IRC-style rooms: messages tagged with room, default '#general'.
 """
 
 import argparse
 import asyncio
+import json
+import os
 import socket
+import sqlite3
+import subprocess
 import sys
 import threading
+import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Optional, Set
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -23,6 +27,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 IS_MACOS = sys.platform == "darwin"
 SERVICE_TYPE = "synth-chat"
+DEFAULT_ROOM = "#general"
+DB_PATH = Path(__file__).parent / "mesh.db"
+REPO_DIR = Path(__file__).parent.parent
 
 if IS_MACOS:
     try:
@@ -46,6 +53,67 @@ else:
     MPC_AVAILABLE = False
 
 
+# ── Storage ───────────────────────────────────────────────────────────────────
+
+def _db() -> sqlite3.Connection:
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False, isolation_level=None)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def _init_db() -> None:
+    with _db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                room TEXT NOT NULL,
+                sender TEXT NOT NULL,
+                text TEXT NOT NULL,
+                ts REAL NOT NULL
+            )
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_messages_room_ts ON messages(room, ts)")
+
+
+def store_message(room: str, sender: str, text: str, ts: float) -> dict:
+    with _db() as conn:
+        cur = conn.execute(
+            "INSERT INTO messages (room, sender, text, ts) VALUES (?, ?, ?, ?)",
+            (room, sender, text, ts),
+        )
+        return {
+            "type": "message",
+            "id": cur.lastrowid,
+            "room": room,
+            "from": sender,
+            "text": text,
+            "ts": ts,
+        }
+
+
+def load_messages(room: str, limit: int = 200) -> List[dict]:
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT id, room, sender, text, ts FROM messages WHERE room = ? ORDER BY ts DESC LIMIT ?",
+            (room, limit),
+        ).fetchall()
+    return [
+        {"type": "message", "id": r["id"], "room": r["room"], "from": r["sender"], "text": r["text"], "ts": r["ts"]}
+        for r in reversed(rows)
+    ]
+
+
+def list_rooms() -> List[str]:
+    with _db() as conn:
+        rows = conn.execute("SELECT DISTINCT room FROM messages ORDER BY room").fetchall()
+    rooms = [r["room"] for r in rows]
+    if DEFAULT_ROOM not in rooms:
+        rooms.insert(0, DEFAULT_ROOM)
+    return rooms
+
+
+# ── State ─────────────────────────────────────────────────────────────────────
+
 @dataclass
 class Peer:
     name: str
@@ -55,17 +123,15 @@ class Peer:
 @dataclass
 class AppState:
     peers: Dict[str, Peer] = field(default_factory=dict)
-    messages: List[dict] = field(default_factory=list)
     sockets: Set[WebSocket] = field(default_factory=set)
 
 
 app_state = AppState()
 _loop: Optional[asyncio.AbstractEventLoop] = None
-_bridge = None  # MPCBridge on Mac, None elsewhere
+_bridge = None
 
 
 def _post(coro) -> None:
-    """Thread-safe: schedule a coroutine on the asyncio event loop from any thread."""
     if _loop:
         asyncio.run_coroutine_threadsafe(coro, _loop)
 
@@ -88,6 +154,8 @@ async def _push_peers() -> None:
     })
 
 
+# ── MPC bridge (Mac only) ─────────────────────────────────────────────────────
+
 if MPC_AVAILABLE:
     _STATE_NAMES = {
         MCSessionStateNotConnected: "NotConnected",
@@ -96,8 +164,6 @@ if MPC_AVAILABLE:
     }
 
     class MPCBridge(NSObject):
-        """Delegate for MCSession, MCNearbyServiceAdvertiser, and MCNearbyServiceBrowser."""
-
         def initWithDisplayName_(self, name: str):
             self = objc.super(MPCBridge, self).init()
             if self is None:
@@ -127,11 +193,11 @@ if MPC_AVAILABLE:
             self._browser.stopBrowsingForPeers()
             self._session.disconnect()
 
-        def send_text(self, text: str) -> None:
+        def send_envelope(self, envelope: dict) -> None:
             peers = list(self._session.connectedPeers() or [])
             if not peers:
                 return
-            encoded = text.encode("utf-8")
+            encoded = json.dumps(envelope).encode("utf-8")
             data = NSData.dataWithBytes_length_(encoded, len(encoded))
             ok, err = self._session.sendData_toPeers_withMode_error_(data, peers, 0, None)
             if not ok:
@@ -148,18 +214,19 @@ if MPC_AVAILABLE:
             _post(_push_peers())
 
         def session_didReceiveData_fromPeer_(self, session, data, peer):
+            raw = bytes(data)
             try:
-                text = bytes(data).decode("utf-8")
-            except UnicodeDecodeError:
-                text = repr(bytes(data))
-            msg = {
-                "type": "message",
-                "from": peer.displayName(),
-                "text": text,
-                "ts": 0,
-            }
-            app_state.messages.append(msg)
-            _post(_broadcast(msg))
+                envelope = json.loads(raw.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                # Legacy plain-text from older peers
+                envelope = {"room": DEFAULT_ROOM, "from": peer.displayName(), "text": raw.decode("utf-8", "replace")}
+
+            room = envelope.get("room", DEFAULT_ROOM)
+            sender = envelope.get("from", peer.displayName())
+            text = envelope.get("text", "")
+            ts = envelope.get("ts", time.time())
+            stored = store_message(room, sender, text, ts)
+            _post(_broadcast(stored))
 
         def session_didReceiveStream_withName_fromPeer_(self, session, stream, name, peer): pass
         def session_didStartReceivingResourceWithName_fromPeer_withProgress_(self, session, name, peer, progress): pass
@@ -198,10 +265,42 @@ if MPC_AVAILABLE:
             rl.runUntilDate_(NSDate.dateWithTimeIntervalSinceNow_(0.1))
 
 
+# ── Version / update ──────────────────────────────────────────────────────────
+
+def _git(*args: str) -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(REPO_DIR), *args],
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+    except Exception:
+        return ""
+
+
+def get_version_info() -> dict:
+    local = _git("rev-parse", "HEAD")[:8]
+    try:
+        subprocess.run(
+            ["git", "-C", str(REPO_DIR), "fetch", "--quiet"],
+            stderr=subprocess.DEVNULL, timeout=5,
+        )
+    except Exception:
+        pass
+    remote = _git("rev-parse", "origin/main")[:8]
+    return {
+        "local": local or "unknown",
+        "remote": remote or "unknown",
+        "update_available": bool(local and remote and local != remote),
+    }
+
+
+# ── App ───────────────────────────────────────────────────────────────────────
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     global _loop, _bridge
     _loop = asyncio.get_running_loop()
+    _init_db()
 
     ap = argparse.ArgumentParser(add_help=False)
     ap.add_argument("--name", default=socket.gethostname())
@@ -237,9 +336,14 @@ async def get_peers():
     return [{"name": p.name, "state": p.state} for p in app_state.peers.values()]
 
 
+@app.get("/rooms")
+async def get_rooms():
+    return list_rooms()
+
+
 @app.get("/messages")
-async def get_messages():
-    return app_state.messages
+async def get_messages(room: str = DEFAULT_ROOM, limit: int = 200):
+    return load_messages(room, limit)
 
 
 @app.get("/platform")
@@ -251,6 +355,11 @@ async def get_platform():
     }
 
 
+@app.get("/version")
+async def get_version():
+    return get_version_info()
+
+
 @app.websocket("/ws")
 async def ws_endpoint(ws: WebSocket):
     await ws.accept()
@@ -260,27 +369,39 @@ async def ws_endpoint(ws: WebSocket):
             "type": "peers",
             "peers": [{"name": p.name, "state": p.state} for p in app_state.peers.values()],
         })
-        await ws.send_json({"type": "history", "messages": app_state.messages})
+        await ws.send_json({"type": "rooms", "rooms": list_rooms()})
         await ws.send_json({
             "type": "platform",
             "platform": sys.platform,
             "mode": "p2p" if MPC_AVAILABLE else "local-only",
         })
+        await ws.send_json({"type": "version", **get_version_info()})
+
+        # Initial history for default room
+        for msg in load_messages(DEFAULT_ROOM):
+            await ws.send_json(msg)
+
         while True:
             data = await ws.receive_json()
-            if data.get("type") == "message":
-                text = data.get("text", "")
-                sender = data.get("from", "me")
-                msg = {
-                    "type": "message",
-                    "from": sender,
-                    "text": text,
-                    "ts": _loop.time() if _loop else 0,
-                }
-                app_state.messages.append(msg)
-                await _broadcast(msg)
+            kind = data.get("type")
+
+            if kind == "message":
+                room = data.get("room", DEFAULT_ROOM)
+                sender = data.get("from", "anon")
+                text = data.get("text", "").strip()
+                if not text:
+                    continue
+                ts = time.time()
+                stored = store_message(room, sender, text, ts)
+                await _broadcast(stored)
                 if _bridge:
-                    _bridge.send_text(text)
+                    _bridge.send_envelope({"room": room, "from": sender, "text": text, "ts": ts})
+
+            elif kind == "history":
+                room = data.get("room", DEFAULT_ROOM)
+                msgs = load_messages(room)
+                await ws.send_json({"type": "history", "room": room, "messages": msgs})
+
     except WebSocketDisconnect:
         pass
     finally:

@@ -670,6 +670,113 @@
 .pill.connecting { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
 .pill.notconnected { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
 
+.rooms {
+  list-style: none;
+  padding: 8px 12px;
+  margin: 0;
+  overflow-y: auto;
+  max-height: 30vh;
+}
+
+.room {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: background 0.1s;
+}
+
+.room:hover { background: var(--code-bg); color: var(--text-h); }
+
+.room.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.room-add {
+  padding: 0 12px 12px;
+}
+
+.room-add input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--mono);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.room-add input:focus {
+  border-color: var(--accent);
+  border-style: solid;
+}
+
+.peer-section {
+  border-top: 1px solid var(--border);
+  padding: 12px 0;
+  overflow-y: auto;
+}
+
+.peer-section h3 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin: 0 20px 8px;
+  opacity: 0.6;
+}
+
+.peer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.peer-section li {
+  padding: 8px 20px;
+}
+
+.update-banner {
+  margin: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: rgba(46, 204, 113, 0.1);
+  border: 1px solid rgba(46, 204, 113, 0.35);
+  font-size: 12px;
+}
+
+.update-banner strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #2ecc71;
+  font-size: 13px;
+}
+
+.update-banner p {
+  margin: 0 0 8px;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+.update-banner code {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 6px 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  color: var(--text-h);
+  word-break: break-all;
+}
+
 .peer-banner {
   margin: 16px;
   padding: 12px 14px;

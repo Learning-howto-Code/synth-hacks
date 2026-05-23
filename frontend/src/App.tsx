@@ -8,6 +8,8 @@ type Peer = {
 
 type Message = {
   type: 'message'
+  id?: number
+  room?: string
   from: string
   text: string
   ts: number
@@ -17,6 +19,13 @@ type PlatformInfo = {
   type: 'platform'
   platform: string
   mode: 'p2p' | 'local-only'
+}
+
+type VersionInfo = {
+  type: 'version'
+  local: string
+  remote: string
+  update_available: boolean
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -290,10 +299,14 @@ python server.py`
 
 function Chat({ nickname }: { nickname: string }) {
   const [peers, setPeers] = useState<Peer[]>([])
-  const [messages, setMessages] = useState<Message[]>([])
+  const [rooms, setRooms] = useState<string[]>(['#general'])
+  const [currentRoom, setCurrentRoom] = useState<string>('#general')
+  const [messagesByRoom, setMessagesByRoom] = useState<Record<string, Message[]>>({})
   const [draft, setDraft] = useState('')
   const [connected, setConnected] = useState(false)
   const [mode, setMode] = useState<'p2p' | 'local-only' | null>(null)
+  const [version, setVersion] = useState<VersionInfo | null>(null)
+  const [newRoomInput, setNewRoomInput] = useState('')
   const wsRef = useRef<WebSocket | null>(null)
   const threadRef = useRef<HTMLDivElement | null>(null)
 
@@ -310,64 +323,132 @@ function Chat({ nickname }: { nickname: string }) {
     ws.onmessage = (ev) => {
       const data = JSON.parse(ev.data)
       if (data.type === 'peers') setPeers(data.peers)
-      else if (data.type === 'history') setMessages(data.messages)
-      else if (data.type === 'message') setMessages((m) => [...m, data])
-      else if (data.type === 'platform') setMode((data as PlatformInfo).mode)
+      else if (data.type === 'rooms') setRooms(data.rooms)
+      else if (data.type === 'history') {
+        setMessagesByRoom((prev) => ({ ...prev, [data.room]: data.messages }))
+      } else if (data.type === 'message') {
+        const room = data.room || '#general'
+        setMessagesByRoom((prev) => ({
+          ...prev,
+          [room]: [...(prev[room] || []), data],
+        }))
+        setRooms((prev) => (prev.includes(room) ? prev : [...prev, room]))
+      } else if (data.type === 'platform') {
+        setMode((data as PlatformInfo).mode)
+      } else if (data.type === 'version') {
+        setVersion(data as VersionInfo)
+      }
     }
     return () => ws.close()
   }, [])
 
+  // Request history when switching rooms
+  useEffect(() => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
+    if (messagesByRoom[currentRoom]) return // already loaded
+    wsRef.current.send(JSON.stringify({ type: 'history', room: currentRoom }))
+  }, [currentRoom, connected])
+
   useEffect(() => {
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight })
-  }, [messages])
+  }, [messagesByRoom, currentRoom])
 
   const send = () => {
     const text = draft.trim()
     if (!text || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
-    wsRef.current.send(JSON.stringify({ type: 'message', from: nickname, text }))
+    wsRef.current.send(JSON.stringify({ type: 'message', from: nickname, text, room: currentRoom }))
     setDraft('')
   }
+
+  const createRoom = (e: React.FormEvent) => {
+    e.preventDefault()
+    let name = newRoomInput.trim()
+    if (!name) return
+    if (!name.startsWith('#')) name = '#' + name
+    name = name.toLowerCase().replace(/[^#a-z0-9-]/g, '-').slice(0, 24)
+    if (!rooms.includes(name)) setRooms((prev) => [...prev, name])
+    setCurrentRoom(name)
+    setNewRoomInput('')
+  }
+
+  const messages = messagesByRoom[currentRoom] || []
 
   return (
     <div className="app">
       <aside className="peers">
         <header>
-          <h2>Peers</h2>
+          <h2>Channels</h2>
           <span className={`dot-status ${connected ? 'on' : 'off'}`} title={connected ? 'connected' : 'disconnected'} />
         </header>
-        {mode === 'local-only' && (
-          <div className="peer-banner">
-            <strong>Local-only mode</strong>
-            <p>Peer discovery (MPC) is macOS only. Your messages stay in this browser session for now.</p>
+
+        {version?.update_available && (
+          <div className="update-banner">
+            <strong>Update available</strong>
+            <p>
+              v{version.local} → v{version.remote}. Pull + restart:
+            </p>
+            <code>git pull && python server.py</code>
           </div>
         )}
-        {mode === 'p2p' && peers.length === 0 && (
-          <p className="empty">Waiting for peers…<br/><small>Ask a friend to run <code>python server.py</code> on the same Wi-Fi.</small></p>
-        )}
-        <ul>
-          {peers.map((p) => (
-            <li key={p.name}>
-              <div className="name">{p.name}</div>
-              <div className="meta">
-                <span className={`pill ${p.state.toLowerCase()}`}>{p.state}</span>
-              </div>
+
+        <ul className="rooms">
+          {rooms.map((r) => (
+            <li
+              key={r}
+              className={`room ${r === currentRoom ? 'active' : ''}`}
+              onClick={() => setCurrentRoom(r)}
+            >
+              {r}
             </li>
           ))}
         </ul>
+
+        <form className="room-add" onSubmit={createRoom}>
+          <input
+            value={newRoomInput}
+            onChange={(e) => setNewRoomInput(e.target.value)}
+            placeholder="+ new channel"
+            maxLength={24}
+          />
+        </form>
+
+        <div className="peer-section">
+          <h3>Peers</h3>
+          {mode === 'local-only' && (
+            <div className="peer-banner">
+              <strong>Local-only mode</strong>
+              <p>Peer discovery is macOS only. Windows/Linux soon.</p>
+            </div>
+          )}
+          {mode === 'p2p' && peers.length === 0 && (
+            <p className="empty"><small>Waiting for peers… have a friend run <code>python server.py</code> on the same Wi-Fi.</small></p>
+          )}
+          <ul>
+            {peers.map((p) => (
+              <li key={p.name}>
+                <div className="name">{p.name}</div>
+                <div className="meta">
+                  <span className={`pill ${p.state.toLowerCase()}`}>{p.state}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <footer className="peers-foot">
-          <small>Messages broadcast to all connected peers.</small>
+          <small>v{version?.local || '...'} · messages persist locally</small>
         </footer>
       </aside>
 
       <main className="chat">
         <header>
-          <h2>Mesh chat</h2>
+          <h2>{currentRoom}</h2>
           <span className="me">{nickname}</span>
         </header>
         <div className="thread" ref={threadRef}>
-          {messages.length === 0 && <p className="empty">No messages yet. Say hi.</p>}
+          {messages.length === 0 && <p className="empty">No messages in {currentRoom} yet. Say hi.</p>}
           {messages.map((m, i) => (
-            <div key={i} className={`msg ${m.from === nickname ? 'mine' : ''}`}>
+            <div key={m.id ?? i} className={`msg ${m.from === nickname ? 'mine' : ''}`}>
               <div className="who">{m.from}</div>
               <div className="bubble">{m.text}</div>
             </div>
@@ -377,7 +458,7 @@ function Chat({ nickname }: { nickname: string }) {
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder={connected ? 'Type message…' : 'Connecting to localhost:8000… (is the server running?)'}
+            placeholder={connected ? `Message ${currentRoom}…` : 'Connecting to localhost:8000… (is the server running?)'}
             disabled={!connected}
           />
           <button type="submit" disabled={!connected || !draft.trim()}>

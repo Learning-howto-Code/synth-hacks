@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+backend/mesh.db
+backend/mesh.db-journal
+output.txt
