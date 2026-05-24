@@ -8,11 +8,11 @@ Every device becomes a relay. Messages hop from phone to phone across the mesh, 
 
 How it works:
 
-    📱 Devices create a Bluetooth mesh network automatically
-    🔗 Messages bounce peer-to-peer — no central server, no single point of failure
-    🌐 Each phone hosts a local web page others can connect to
-    📡 Range extends with every new device joining the mesh
-    🆘 Perfect for emergency alerts, evacuation coordination, and status check-ins
+    Devices create a Bluetooth mesh network automatically
+    Messages bounce peer-to-peer — no central server, no single point of failure
+    Each phone hosts a local web page others can connect to
+    Range extends with every new device joining the mesh
+    Perfect for emergency alerts, evacuation coordination, and status check-ins
 
 Use cases:
 
@@ -20,5 +20,8 @@ Use cases:
     Natural disaster: neighbors coordinate supplies when cell networks are dead
     Power outage: building residents check on each other without internet
     Protests/crowds: decentralized comms that can't be shut down
+
+## Download
+use the instructions on the website
 
 Built for Systems Under Pressure — because the moment you need communication most is the moment centralized networks fail.
